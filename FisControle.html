@@ -1,0 +1,1548 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>Meus Projetos de Estudo</title>
+<style>
+@import url('https://fonts.googleapis.com/css2?family=Fraunces:opsz,wght@9..144,500;9..144,600;9..144,700&family=Inter:wght@400;500;600;700&display=swap');
+:root{
+ --bg:#F5F5F0;--surface:#FFFFFF;--ink:#1B2128;--ink-soft:#666F7A;--line:#E1DFD5;
+ --accent:#20553F;--accent-soft:#E7EEE9;
+ --gold:#93692A;--gold-soft:#F3EBDA;
+ --red:#9B3A2E;--red-soft:#F4E6E2;
+}
+*{box-sizing:border-box}
+body{margin:0;background:var(--bg);color:var(--ink);font-family:Inter,system-ui,-apple-system,Segoe UI,sans-serif;font-size:15px;line-height:1.5;-webkit-font-smoothing:antialiased}
+h1,h2{font-family:Fraunces,Georgia,serif;font-weight:600;letter-spacing:-.01em;margin:0}
+
+header{background:var(--surface);border-bottom:1px solid var(--line);padding:28px max(5%,20px) 22px}
+header h1{font-size:22px;color:var(--ink)}
+header p{margin:6px 0 0;color:var(--ink-soft);font-size:14px}
+
+.layout{display:flex;align-items:flex-start}
+nav{background:var(--surface);border-right:1px solid var(--line);display:flex;flex-direction:column;gap:2px;padding:20px 14px;flex-shrink:0;width:220px;position:sticky;top:0;align-self:flex-start;height:100vh;overflow-y:auto;z-index:5}
+.navhead{padding:0 8px 16px;border-bottom:1px solid var(--line);margin-bottom:10px}
+.navhead .label{font-size:11px}
+.navhead .projname{font-family:Fraunces,Georgia,serif;font-weight:600;font-size:15px;margin-top:3px;line-height:1.3}
+nav button{background:transparent;color:var(--ink-soft);border:0;border-radius:8px;padding:11px 14px;font-size:13.5px;font-weight:600;white-space:nowrap;cursor:pointer;text-align:left;transition:color .15s,background .15s}
+nav button.active{color:var(--accent);background:var(--accent-soft)}
+nav button:hover{color:var(--ink)}
+.navbottom{margin-top:auto!important}
+
+.container{max-width:1120px;margin:0 auto;padding:34px 20px 70px;flex:1;min-width:0}
+.tab{display:none}.tab.active{display:block}
+
+.grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(150px,1fr));gap:1px;background:var(--line);border:1px solid var(--line);border-radius:10px;overflow:hidden}
+.card{background:var(--surface);padding:18px 20px}
+.panel{background:var(--surface);border:1px solid var(--line);border-radius:10px;padding:24px}
+
+.metric{font-family:Fraunces,Georgia,serif;font-size:25px;font-weight:600;margin-top:6px;color:var(--ink)}
+.label{font-size:12.5px;color:var(--ink-soft)}
+
+.section{margin-top:20px}
+.panel h2{font-size:16px;margin:0 0 16px}
+.row{display:flex;gap:9px;align-items:center;flex-wrap:wrap}
+
+input,select,textarea{font:inherit;font-size:14px;border:1px solid var(--line);border-radius:7px;padding:9px 11px;background:var(--surface);color:var(--ink)}
+input:focus,select:focus,textarea:focus{outline:2px solid var(--accent);outline-offset:1px;border-color:var(--accent)}
+textarea{min-height:76px;resize:vertical}
+
+button{font:inherit;border:1px solid transparent;border-radius:7px;padding:9px 15px;cursor:pointer;font-weight:600;font-size:13.5px;transition:background .15s,border-color .15s}
+.primary{background:var(--ink);color:#fff}
+.primary:hover{background:var(--accent)}
+.secondary{background:var(--surface);color:var(--ink);border-color:var(--line)}
+.secondary:hover{border-color:var(--ink)}
+.danger{background:var(--surface);color:var(--red);border-color:var(--red-soft)}
+.danger:hover{background:var(--red-soft)}
+.small{padding:6px 11px;font-size:12px}
+
+table{width:100%;border-collapse:collapse}
+th{padding:9px 8px;border-bottom:1px solid var(--line);text-align:left;font-size:11.5px;color:var(--ink-soft);font-weight:600}
+td{padding:12px 8px;border-bottom:1px solid var(--line);text-align:left;font-size:13.5px;vertical-align:middle}
+tr:last-child td{border-bottom:0}
+
+.progress{height:6px;background:var(--line);border-radius:99px;overflow:hidden}
+.bar{height:100%;background:var(--accent);transition:.25s}
+
+.badge{display:inline-block;padding:3px 10px;border-radius:99px;font-size:11px;font-weight:600;background:var(--surface);color:var(--ink-soft);border:1px solid var(--line)}
+.done{background:var(--accent-soft);color:var(--accent);border-color:var(--accent-soft)}
+.warn{background:var(--gold-soft);color:var(--gold);border-color:var(--gold-soft)}
+.red{background:var(--red-soft);color:var(--red);border-color:var(--red-soft)}
+
+.muted{color:var(--ink-soft)}
+.empty{text-align:center;color:var(--ink-soft);padding:32px;font-size:13.5px}
+
+.modal{display:none;position:fixed;inset:0;background:rgba(24,22,18,.42);z-index:20;align-items:center;justify-content:center;padding:18px}
+.modal.open{display:flex}
+.modalbox{background:var(--surface);border-radius:12px;padding:26px;width:min(650px,100%);max-height:90vh;overflow:auto;border:1px solid var(--line)}
+
+.formgrid{display:grid;grid-template-columns:1fr 1fr;gap:14px}
+.formgrid .full{grid-column:1/-1}
+.formgrid label{font-size:12.5px;color:var(--ink-soft);display:flex;flex-direction:column;gap:6px}
+
+.timer{font-family:Fraunces,Georgia,serif;font-size:44px;text-align:center;font-weight:600;margin:18px;color:var(--ink)}
+.two{display:grid;grid-template-columns:1.1fr .9fr;gap:14px}
+
+.greeting{display:flex;justify-content:space-between;align-items:flex-end;gap:14px;flex-wrap:wrap;margin-bottom:20px}
+.greeting h2{font-size:22px}
+.greeting input{border:0;background:transparent;font:inherit;font-family:Fraunces,Georgia,serif;font-weight:600;font-size:22px;padding:0;width:150px}
+.greeting input:focus{outline:none;border-bottom:1px solid var(--accent)}
+
+.motivational{font-style:italic;font-size:13.5px;color:var(--accent);margin:-8px 0 20px}
+
+.bars{display:flex;align-items:flex-end;gap:12px;overflow-x:auto;padding:4px 2px 2px}
+.bars .col{display:flex;flex-direction:column;align-items:center;flex:1;min-width:56px}
+.bars .val{font-size:11px;font-weight:600;color:var(--ink-soft);margin-bottom:4px}
+.bars .stick{width:100%;max-width:42px;border-radius:6px 6px 2px 2px}
+.bars .name{margin-top:8px;text-align:center;line-height:1.25}
+
+.hub-container{max-width:920px;margin:0 auto;padding:34px 20px 70px}
+.plan-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(220px,1fr));gap:14px}
+.plan-day{border:1px solid var(--line);border-radius:10px;padding:14px;background:var(--surface);display:flex;flex-direction:column;gap:6px}
+.plan-day.today{border-color:var(--accent);box-shadow:0 0 0 1px var(--accent)}
+.plan-day h3{margin:0;font-size:14px;font-family:Fraunces,Georgia,serif}
+.plan-item{display:flex;gap:8px;align-items:flex-start;padding:9px 0;border-top:1px solid var(--line)}
+.plan-item input[type=checkbox]{width:auto;padding:0;margin-top:4px}
+.plan-item.done .plan-title{text-decoration:line-through;color:var(--ink-soft)}
+.projects-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(230px,1fr));gap:14px}
+.project-card{border:1px solid var(--line);border-radius:10px;padding:18px;background:var(--surface);display:flex;flex-direction:column;gap:10px}
+.project-card h3{font-size:16px;margin:0;font-family:Fraunces,Georgia,serif}
+
+#splash{position:fixed;inset:0;background:var(--ink);color:#fff;z-index:9999;display:flex;align-items:center;justify-content:center;flex-direction:column;gap:16px;transition:opacity .6s ease,visibility .6s ease;text-align:center;padding:20px}
+#splash.hide{opacity:0;visibility:hidden;pointer-events:none}
+#splash h1{font-family:Fraunces,Georgia,serif;font-size:30px;font-weight:600;margin:0;opacity:0;transform:translateY(10px);animation:splashIn .8s ease forwards .1s}
+#splash .splash-line{width:0;height:2px;background:var(--accent-soft);animation:splashLine 1s ease forwards .3s}
+#splash p{font-style:italic;font-size:14px;color:#cfd6d1;margin:0;max-width:380px;opacity:0;animation:splashIn .8s ease forwards .45s}
+@keyframes splashIn{to{opacity:1;transform:translateY(0)}}
+@keyframes splashLine{to{width:130px}}
+
+@media(max-width:860px){
+ .layout{flex-direction:column}
+ nav{flex-direction:row;width:100%;height:auto;position:sticky;overflow-x:auto;overflow-y:visible;border-right:0;border-bottom:1px solid var(--line);padding:0 max(5%,20px);gap:22px}
+ nav button{border-radius:0;border-bottom:2px solid transparent;padding:15px 1px}
+ nav button.active{background:transparent;border-bottom-color:var(--accent)}
+ .navhead,.navbottom{display:none}
+ .two{grid-template-columns:1fr}
+}
+@media(max-width:550px){
+ .grid{grid-template-columns:1fr 1fr}
+ .formgrid{grid-template-columns:1fr}
+ .formgrid .full{grid-column:auto}
+ th:nth-child(4),td:nth-child(4){display:none}
+}
+
+/* ===== Ciclo e metas (nuvem) ===== */
+.cloud-wrap{max-width:1040px;margin:0 auto;padding:30px 20px 70px}
+.cloud-top{display:flex;justify-content:space-between;align-items:center;gap:12px;flex-wrap:wrap;margin-bottom:6px}
+.cloud-tabs{display:flex;gap:4px;border-bottom:1px solid var(--line);margin:18px 0 22px;overflow-x:auto}
+.cloud-tabs button{background:transparent;border:0;border-radius:0;border-bottom:2px solid transparent;color:var(--ink-soft);padding:11px 14px;white-space:nowrap}
+.cloud-tabs button:hover{color:var(--ink)}
+.cloud-tabs button.active{color:var(--accent);border-bottom-color:var(--accent)}
+.goal{display:grid;grid-template-columns:auto 1fr auto;gap:12px;align-items:start;padding:14px 0;border-top:1px solid var(--line)}
+.goal.first{border-top:0}
+.goal input[type=checkbox]{width:18px;height:18px;margin-top:3px;padding:0;accent-color:var(--accent)}
+.goal.done .goal-title{text-decoration:line-through;color:var(--ink-soft)}
+.goal-title{font-weight:600;line-height:1.35}
+.goal-meta{font-size:12.5px;color:var(--ink-soft);margin-top:4px;display:flex;gap:10px;flex-wrap:wrap;align-items:center}
+.goal-q{display:flex;gap:6px;align-items:center}
+.goal-q input{width:62px;padding:4px 7px;font-size:13px}
+.goal-actions{display:flex;gap:6px;flex-wrap:wrap;justify-content:flex-end}
+a.linkbtn{display:inline-block;text-decoration:none;border:1px solid var(--line);border-radius:7px;padding:6px 11px;font-size:12px;font-weight:600;color:var(--ink);background:var(--surface)}
+a.linkbtn:hover{border-color:var(--ink)}
+.subj-card{border:1px solid var(--line);border-radius:10px;background:var(--surface);margin-bottom:10px;overflow:hidden}
+.subj-head{display:flex;gap:12px;align-items:center;justify-content:space-between;flex-wrap:wrap;padding:12px 16px}
+.subj-body{border-top:1px solid var(--line);padding:4px 16px 10px;background:#FBFBF8}
+.topic-row{display:grid;grid-template-columns:1fr auto auto;gap:10px;align-items:center;padding:9px 0;border-top:1px solid var(--line);font-size:13.5px}
+.topic-row:first-child{border-top:0}
+.cloud-msg{position:fixed;left:50%;bottom:22px;transform:translateX(-50%);max-width:92vw;padding:11px 16px;border-radius:8px;background:var(--ink);color:#fff;font-size:13.5px;z-index:30;display:none}
+.cloud-msg.err{background:var(--red)}
+.authbox{max-width:380px;margin:30px auto 0}
+.authbox label{display:flex;flex-direction:column;gap:6px;font-size:12.5px;color:var(--ink-soft);margin-bottom:12px}
+@media(max-width:550px){.goal{grid-template-columns:auto 1fr}.goal-actions{grid-column:2;justify-content:flex-start}.topic-row{grid-template-columns:1fr 1fr}.topic-row>:first-child{grid-column:1/-1}}
+</style>
+</head>
+<body>
+<div id="splash"><h1 id="splashTitle">Painel de Pós-Edital</h1><div class="splash-line"></div><p id="splashSub"></p></div>
+<header><h1 id="appTitle">Meus projetos</h1><p id="todayDate"></p></header>
+
+<div id="hubView">
+<div class="hub-container">
+<div class="greeting">
+<div><div class="label">Bem-vindo(a) de volta</div><h2>Oi, <input id="userNameInput" placeholder="seu nome" onchange="saveUserName(this.value)">!</h2></div>
+<div class="row">
+<button class="secondary" onclick="cloudSignOut()">Sair da conta</button>
+
+<button class="primary" onclick="openProjectModal()">+ Novo projeto</button>
+</div>
+</div>
+<div class="projects-grid" id="projectGrid"></div>
+<div class="panel section">
+<h2>Backup dos dados</h2>
+<div class="label" style="margin-bottom:12px">Seus dados ficam salvos apenas neste navegador. Exporte um arquivo de backup de vez em quando e guarde no Google Drive, e-mail ou onde preferir. Para restaurar (ou levar para outro aparelho), use o importar.</div>
+<div class="row">
+<button class="secondary" onclick="exportBackup()">Exportar backup</button>
+<button class="secondary" onclick="document.getElementById('importFile').click()">Importar backup</button>
+<input type="file" id="importFile" accept="application/json,.json" style="display:none" onchange="importBackup(this)">
+</div>
+</div>
+</div>
+</div>
+
+<div id="projectView" class="layout" style="display:none">
+<nav>
+<div class="navhead">
+<button class="secondary small" onclick="goToHub()" style="width:100%;margin-bottom:12px">← Meus projetos</button>
+<div class="label">Projeto</div>
+<div class="projname" id="projName">—</div>
+</div>
+<button data-tab="visaogeral" class="active" onclick="tab('visaogeral',this)">Visão Geral</button>
+<button data-tab="revisoes" onclick="tab('revisoes',this)">Revisões</button>
+<button data-tab="materias" onclick="tab('materias',this)">Matérias</button>
+<button data-tab="planejamento" onclick="tab('planejamento',this)">Planejamento</button>
+<button data-tab="lancamentos" onclick="tab('lancamentos',this)">Estudos</button>
+<button data-tab="progresso" onclick="tab('progresso',this)">Progresso do Edital</button>
+<button data-tab="desempenho" onclick="tab('desempenho',this)">Desempenho</button>
+<button data-tab="discursivas" onclick="tab('discursivas',this)">Provas Discursivas</button>
+<button class="navbottom small danger" onclick="deleteCurrentProjectPrompt()">Excluir este projeto</button>
+</nav>
+
+<div class="container">
+
+<section id="visaogeral" class="tab active">
+<div class="greeting">
+<div><div class="label">Bem-vindo(a) de volta</div><h2>Oi, <input id="userNameInput2" placeholder="seu nome" onchange="saveUserName(this.value)">!</h2></div>
+<button class="secondary" onclick="openExamModal()">Editar dados do concurso</button>
+</div>
+<p class="motivational" id="motivational"></p>
+
+<div class="panel">
+<div class="row" style="justify-content:space-between"><h2>Resumo de ontem</h2><span class="label" id="yesterdayDateLabel"></span></div>
+<div class="grid" style="margin-top:12px">
+<div class="card"><div class="label">Horas líquidas</div><div class="metric" id="ySumHours">0h 00</div></div>
+<div class="card"><div class="label">Questões feitas</div><div class="metric" id="yQCount">0</div></div>
+<div class="card"><div class="label">% de acerto</div><div class="metric" id="yAcc">—</div></div>
+</div>
+</div>
+
+<div class="section two">
+<div class="panel"><div class="label">Dias para a prova</div><div class="metric" style="font-size:38px" id="mDays2">—</div><div class="label" id="examDateLabel">Cadastre a data da prova</div></div>
+<div class="panel"><div class="label">Horas líquidas acumuladas</div><div class="metric" style="font-size:38px" id="totalHoursAll">0h 00</div><div class="label">Desde o início dos estudos</div></div>
+</div>
+
+<div class="section panel"><h2>Desempenho por disciplina</h2><div id="perfChart"></div></div>
+</section>
+
+<section id="revisoes" class="tab">
+<div class="panel">
+<div class="row" style="justify-content:space-between"><div><h2>Ciclos de revisão</h2><div class="label">Gerados automaticamente quando um conteúdo é concluído (24h, 7, 15 e 30 dias — repetição espaçada).</div></div><span class="label" id="reviewSummary"></span></div>
+<div id="reviewList" class="section"></div>
+</div>
+</section>
+
+<section id="materias" class="tab">
+<div class="panel">
+<div class="row" style="justify-content:space-between"><div><h2>Matérias e edital verticalizado</h2><div class="label">Cadastre as matérias, o peso de cada uma na prova e acompanhe as horas já estudadas. Renomeie ou exclua direto na tabela.</div></div></div>
+<div class="row section"><input id="vertNewSubject" placeholder="Nova matéria" style="flex:1;min-width:180px"><button class="primary" onclick="addSubject('vertNewSubject')">Adicionar matéria</button></div>
+<div style="overflow:auto;margin-top:15px"><table><thead><tr><th>Matéria</th><th>Questões na prova</th><th>Peso</th><th>Progresso</th><th>Horas estudadas</th><th>Prioridade</th><th></th></tr></thead><tbody id="vertTable"></tbody></table></div>
+</div>
+</section>
+
+<section id="planejamento" class="tab">
+<div class="panel">
+<div class="row" style="justify-content:space-between">
+<div><h2>Planejamento semanal</h2><div class="label" id="planWeekLabel"></div></div>
+<div class="row">
+<button class="secondary small" onclick="planShiftWeek(-1)">← Anterior</button>
+<button class="secondary small" onclick="planThisWeek()">Esta semana</button>
+<button class="secondary small" onclick="planShiftWeek(1)">Próxima →</button>
+</div>
+</div>
+<div class="grid section" id="planSummary"></div>
+<div class="row section">
+<button class="secondary small" onclick="planCopyPrevWeek()">Copiar semana anterior</button>
+<button class="danger small" onclick="planClearWeek()">Limpar semana</button>
+</div>
+</div>
+<div class="plan-grid section" id="planGrid"></div>
+</section>
+
+<section id="lancamentos" class="tab">
+<div class="panel"><h2>Cronômetro</h2><div class="row"><select id="timerSubject"></select><select id="timerType"><option>Teoria</option><option>Questões</option><option>Flashcard</option><option>PDF / Resumo</option><option>Videoaula</option><option>Revisão</option><option>Simulado</option><option>Lei seca / Jurisprudência</option><option>Redação / Discursiva</option><option>Outro</option></select><input id="timerTopic" placeholder="Conteúdo estudado" style="flex:1"></div><div class="timer" id="timer">00:00:00</div><div class="row" style="justify-content:center"><button class="primary" onclick="startTimer()">Iniciar</button><button class="secondary" onclick="pauseTimer()">Pausar</button><button class="danger" onclick="finishTimer()">Finalizar</button></div></div>
+
+<div class="section panel" id="planPendingPanel" style="display:none"><h2>Concluídos no planejamento</h2><div class="label" style="margin-bottom:10px">Atividades marcadas como feitas no Planejamento que ainda não foram registradas como estudo.</div><div id="planPending"></div></div>
+
+<div class="section panel" id="registrarEstudo"><h2>Registrar estudo</h2><div id="manualFromPlan" class="label" style="display:none;margin-bottom:12px;padding:10px 12px;border:1px solid var(--accent);border-radius:8px;background:var(--accent-soft);color:var(--ink)"></div><div class="label" style="margin-bottom:12px">Estudou vários conteúdos de uma vez (ex.: caderno de questões)? Marque todos abaixo — o tempo (e as questões, se for o caso) é dividido entre eles.</div>
+<div class="section"><div class="label" style="margin-bottom:8px">Conteúdos estudados (marque um ou mais)</div><select id="manualSubjectFilter" onchange="filterManualContentList()" style="margin-bottom:8px;width:100%"></select><div id="manualContentList" style="max-height:220px;overflow-y:auto;border:1px solid var(--line);border-radius:8px;padding:10px"></div></div>
+<div class="row section"><input id="manualDate" type="date"><select id="manualType" onchange="onManualTypeChange()"><option>Manual</option><option>Teoria</option><option>Questões</option><option>Flashcard</option><option>PDF / Resumo</option><option>Videoaula</option><option>Revisão</option><option>Simulado</option><option>Lei seca / Jurisprudência</option><option>Redação / Discursiva</option><option>Outro</option></select><input id="manualQCount" type="number" min="0" placeholder="Questões feitas (total)" style="display:none;width:170px"><input id="manualQCorrect" type="number" min="0" placeholder="Acertos (total)" style="display:none;width:150px"><input id="manualHoursH" type="number" min="0" step="1" placeholder="Horas" style="width:90px"><input id="manualHoursM" type="number" min="0" max="59" step="1" placeholder="Minutos" style="width:90px"><input id="manualHoursS" type="number" min="0" max="59" step="1" placeholder="Segundos" style="width:90px"><button class="primary" onclick="addManualHours()">Registrar</button></div>
+</div>
+
+<div class="section panel"><h2>Metas</h2><div class="row"><label>Horas/dia <input id="goalDay" type="number" step=".5" min="0" style="width:90px"></label><label>Horas/semana <input id="goalWeek" type="number" step=".5" min="0" style="width:90px"></label></div><div class="section progress"><div class="bar" id="dayBar"></div></div><p class="label" id="dayText"></p></div>
+
+
+<div class="section panel"><h2>Últimas sessões</h2><div class="label" style="margin-bottom:8px">Horas lançadas por matéria (total)</div><div id="sessionTotals" class="row" style="margin-bottom:16px"></div><div style="overflow:auto"><table><thead><tr><th>Data</th><th>Matéria</th><th>Conteúdo</th><th>Tipo</th><th>Duração</th><th></th></tr></thead><tbody id="sessionTable"></tbody></table></div></div>
+</section>
+
+<section id="progresso" class="tab">
+<div class="panel"><h2>Progresso do edital</h2><div class="progress"><div class="bar" id="overallBar"></div></div><p class="label" id="overallText">0% concluído</p><div id="subjectProgress"></div></div>
+
+<div class="section panel"><h2>Prioridades</h2><div id="priorities"></div></div>
+
+<div class="section panel">
+<div class="row" style="justify-content:space-between"><div><h2>Conteúdos</h2><div class="label">Cadastre cada assunto do edital e acompanhe exatamente o que falta concluir.</div></div><button class="primary" onclick="openContent()">+ Novo conteúdo</button></div>
+<div class="row section"><select id="filterSubject" onchange="renderContents()"><option value="">Todas as matérias</option></select><select id="filterStatus" onchange="renderContents()"><option value="">Todos os status</option><option value="pendente">Pendentes</option><option value="andamento">Em andamento</option><option value="concluido">Concluídos</option></select><input id="searchContent" oninput="renderContents()" placeholder="Buscar conteúdo" style="flex:1;min-width:180px"></div>
+<div style="overflow:auto;margin-top:15px"><table><thead><tr><th>Matéria</th><th>Conteúdo</th><th>Status</th><th>Progresso</th><th>Questões</th><th></th></tr></thead><tbody id="contentTable"></tbody></table></div>
+</div>
+</section>
+
+<section id="desempenho" class="tab">
+<div class="panel">
+<div class="row" style="justify-content:space-between">
+<h2>Desempenho por disciplina</h2>
+<div class="row">
+<select id="perfPeriodType" onchange="onPerfPeriodTypeChange()"><option value="day">Dia</option><option value="month">Mês</option><option value="year">Ano</option></select>
+<input id="perfDay" type="date" onchange="renderPerfPeriod()">
+<input id="perfMonth" type="month" style="display:none" onchange="renderPerfPeriod()">
+<input id="perfYear" type="number" min="2000" max="2100" style="display:none;width:100px" onchange="renderPerfPeriod()">
+</div>
+</div>
+<div class="grid section" id="perfPeriodSummary"></div>
+<div class="section"><h2 style="font-size:15px;margin-bottom:10px">Acerto por matéria no período</h2><div id="perfPeriodChart"></div></div>
+<div class="section" style="overflow:auto"><table><thead><tr><th>Matéria</th><th>Questões</th><th>Acertos</th><th>% Acerto</th><th>Horas estudadas</th></tr></thead><tbody id="perfPeriodTable"></tbody></table></div>
+</div>
+</section>
+
+<section id="discursivas" class="tab">
+<div class="panel">
+<h2>Provas discursivas</h2>
+<div class="row"><select id="dSubject"></select><input id="dTheme" placeholder="Tema / questão discursiva" style="flex:1;min-width:160px"><input id="dDate" type="date"></div>
+<div class="row section"><input id="dGrade" type="number" step=".1" min="0" placeholder="Nota obtida" style="width:130px"><input id="dMax" type="number" step=".1" min="0" placeholder="Nota máxima" style="width:130px"><button class="primary" onclick="addDiscursiva()">Registrar</button></div>
+<div class="row section"><textarea id="dFeedback" placeholder="Feedback / pontos a melhorar (opcional)" style="flex:1"></textarea></div>
+<div class="section" id="discStats"></div>
+<div style="overflow:auto;margin-top:10px"><table><thead><tr><th>Data</th><th>Matéria</th><th>Tema</th><th>Nota</th><th></th></tr></thead><tbody id="discTable"></tbody></table></div>
+</div>
+</section>
+
+</div>
+</div>
+
+<div id="cloudView" style="display:none"><div class="cloud-wrap"><div id="cloudBody"></div></div></div>
+<div class="cloud-msg" id="cloudMsg"></div>
+
+<div class="modal" id="cloudAddModal"><div class="modalbox">
+<div class="row" style="justify-content:space-between"><h2>Nova atividade na meta</h2><button class="secondary" onclick="cloudCloseAdd()">✕</button></div>
+<div class="formgrid">
+<label>Matéria<select id="caSubject" style="width:100%" onchange="cloudFillTopicSelect()"></select></label>
+<label>Assunto (opcional)<select id="caTopic" style="width:100%" onchange="cloudPickTopic()"></select></label>
+<label>Tipo<select id="caKind" style="width:100%"><option value="teoria">Teoria</option><option value="questoes">Questões</option><option value="revisao">Revisão</option><option value="outro">Outro</option></select></label>
+<label>Título (opcional)<input id="caTitle" style="width:100%" placeholder="Ex.: Caderno de erros"></label>
+<label class="full">Link do TEC (opcional)<input id="caUrl" style="width:100%" placeholder="https://www.tecconcursos.com.br/s/..."></label>
+<label>Minutos<input id="caMin" type="number" min="1" style="width:100%" placeholder="Ex.: 45"></label>
+<label>Meta de questões<input id="caQ" type="number" min="1" style="width:100%" placeholder="Ex.: 40"></label>
+</div>
+<div class="label" style="margin-top:10px">Informe minutos, meta de questões ou os dois.</div>
+<div class="row" style="justify-content:flex-end;margin-top:15px"><button class="secondary" onclick="cloudCloseAdd()">Cancelar</button><button class="primary" onclick="cloudSaveAdd()">Adicionar à meta</button></div>
+</div></div>
+
+<div class="modal" id="projectModal"><div class="modalbox">
+<div class="row" style="justify-content:space-between"><h2>Novo projeto</h2><button class="secondary" onclick="closeProjectModal()">✕</button></div>
+<div class="formgrid">
+<label class="full">Nome do projeto<input id="pName" style="width:100%" placeholder="Ex.: Auditor Fiscal de Limeira"></label>
+<label class="full">Curso-base<select id="pCourse" style="width:100%"></select></label>
+<label>Tipo<select id="pType" style="width:100%"><option value="pos">Pós-Edital</option><option value="pre">Pré-Edital</option></select></label>
+<label>Data da prova (opcional)<input id="pDate" type="date" style="width:100%"></label>
+</div>
+<div class="row" style="justify-content:flex-end;margin-top:15px"><button class="secondary" onclick="closeProjectModal()">Cancelar</button><button class="primary" onclick="createProject()">Criar projeto</button></div>
+</div></div>
+
+<div class="modal" id="planModal"><div class="modalbox">
+<div class="row" style="justify-content:space-between"><h2 id="planModalTitle">Planejar estudo</h2><button class="secondary" onclick="closePlanModal()">✕</button></div>
+<div class="formgrid">
+<label>Dia<input id="pnDate" type="date" style="width:100%"></label>
+<label>Tipo<select id="pnType" style="width:100%"><option>Teoria</option><option>Questões</option><option>Flashcard</option><option>PDF / Resumo</option><option>Videoaula</option><option>Revisão</option><option>Simulado</option><option>Lei seca / Jurisprudência</option><option>Redação / Discursiva</option><option>Outro</option></select></label>
+<label class="full">Curso<select id="pnCourse" style="width:100%" onchange="planCourseChanged()"></select></label>
+<div class="full"><div id="pnContentRows"></div><button type="button" class="secondary small" onclick="planAddContentRow()" style="margin-top:8px">+ Adicionar outra matéria e assunto</button></div>
+<label class="full">Link do caderno (opcional)<input id="pnLink" type="url" oninput="planLinkEdited()" style="width:100%" placeholder="Link padrão do banco; você pode editar"></label>
+<label class="full">Tempo previsto<div class="row"><input id="pnH" type="number" min="0" step="1" placeholder="Horas" style="width:100px"><input id="pnM" type="number" min="0" max="59" step="1" placeholder="Minutos" style="width:100px"></div></label>
+<label class="full">Observação (opcional)<input id="pnNote" style="width:100%" placeholder="Ex.: fazer 30 questões, resumir o capítulo 2"></label>
+</div>
+<div class="row" style="justify-content:flex-end;margin-top:15px"><button class="secondary" onclick="closePlanModal()">Cancelar</button><button class="primary" onclick="planSave()">Salvar</button></div>
+</div></div>
+
+<div class="modal" id="sessionModal"><div class="modalbox">
+<div class="row" style="justify-content:space-between"><h2>Editar sessão</h2><button class="secondary" onclick="closeSessionModal()">✕</button></div>
+<div class="formgrid">
+<label>Matéria<select id="sSubject" style="width:100%"></select></label>
+<label>Tipo<select id="sType" style="width:100%"><option>Manual</option><option>Teoria</option><option>Questões</option><option>Flashcard</option><option>PDF / Resumo</option><option>Videoaula</option><option>Revisão</option><option>Simulado</option><option>Lei seca / Jurisprudência</option><option>Redação / Discursiva</option><option>Outro</option></select></label>
+<label>Data<input id="sDate" type="date" style="width:100%"></label>
+<label>Horas, minutos e segundos<div class="row"><input id="sHoursH" type="number" min="0" step="1" placeholder="Horas" style="width:100%"><input id="sHoursM" type="number" min="0" max="59" step="1" placeholder="Minutos" style="width:100%"><input id="sHoursS" type="number" min="0" max="59" step="1" placeholder="Segundos" style="width:100%"></div></label>
+<label class="full">Conteúdo / observação<input id="sTopic" style="width:100%"></label>
+</div>
+<div class="row" style="justify-content:flex-end;margin-top:15px"><button class="secondary" onclick="closeSessionModal()">Cancelar</button><button class="primary" onclick="saveSessionEdit()">Salvar</button></div>
+</div></div>
+
+<div class="modal" id="contentModal"><div class="modalbox">
+<div class="row" style="justify-content:space-between"><h2 id="modalTitle">Novo conteúdo</h2><button class="secondary" onclick="closeContent()">✕</button></div>
+<div class="formgrid">
+<label>Matéria<select id="cSubject" style="width:100%"></select></label>
+<label>Prioridade<select id="cPriority" style="width:100%"><option>Normal</option><option>Alta</option><option>Baixa</option></select></label>
+<label class="full">Conteúdo<input id="cName" style="width:100%" placeholder="Ex.: Princípios fundamentais da contabilidade"></label>
+<label>Status<select id="cStatus" style="width:100%"><option value="pendente">Pendente</option><option value="andamento">Em andamento</option><option value="concluido">Concluído</option></select></label>
+<label>% concluído<input id="cProgress" type="number" min="0" max="100" style="width:100%" value="0"></label>
+<label class="full">O que falta / observações<textarea id="cNotes" placeholder="Ex.: falta fazer exercícios, revisar CPC, assistir aula 3..."></textarea></label>
+</div>
+<div class="row" style="justify-content:flex-end;margin-top:15px"><button class="secondary" onclick="closeContent()">Cancelar</button><button class="primary" onclick="saveContent()">Salvar conteúdo</button></div>
+</div></div>
+
+<div class="modal" id="examModal"><div class="modalbox">
+<div class="row" style="justify-content:space-between"><h2>Dados do concurso</h2><button class="secondary" onclick="closeExamModal()">✕</button></div>
+<div class="formgrid">
+<label class="full">Nome do concurso<input id="eName" style="width:100%" placeholder="Ex.: TCE-MG — Auditor"></label>
+<label>Banca<input id="eBanca" style="width:100%" placeholder="Ex.: FGV, Cebraspe..."></label>
+<label>Data da prova<input id="eDate" type="date" style="width:100%"></label>
+<label>Vagas<input id="eVacancies" style="width:100%" placeholder="Ex.: 15 + CR"></label>
+<label class="full">Observações<textarea id="eNotes" placeholder="Ex.: local de prova, edital nº, link do edital..."></textarea></label>
+</div>
+<div class="row" style="justify-content:flex-end;margin-top:15px"><button class="secondary" onclick="closeExamModal()">Cancelar</button><button class="primary" onclick="saveExamInfo()">Salvar</button></div>
+</div></div>
+
+<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2.45.4/dist/umd/supabase.js"></script>
+<script>
+const KEY='estudos_hub_v1';
+let state=JSON.parse(localStorage.getItem(KEY)||'null');
+let stateStorageKey=KEY;
+let activeLocalUserId=null;
+let cloudStateSaveTimer=null;
+let cloudStateSchemaWarned=false;
+if(!state){
+ const old=JSON.parse(localStorage.getItem('controle_estudos_v3')||'null');
+ if(old){
+  const proj={id:crypto.randomUUID(),name:(old.examInfo&&old.examInfo.name)||'Meu concurso',type:'pos',createdAt:new Date().toISOString().slice(0,10),
+   subjects:old.subjects||[],subjectMeta:old.subjectMeta||{},contents:old.contents||[],
+   sessions:(old.sessions||[]).map(s=>({...s,id:s.id||crypto.randomUUID()})),
+   questions:old.questions||[],discursivas:old.discursivas||[],reviews:old.reviews||[],
+   examInfo:old.examInfo||{name:'',banca:'',date:'',vacancies:'',notes:''},goalDay:old.goalDay??5,goalWeek:old.goalWeek??30};
+  state={userName:old.userName||'',currentProjectId:null,projects:[proj]};
+ }else{
+  state={userName:'',currentProjectId:null,projects:[]};
+ }
+}
+let manualPlanId=null;
+function normalize(p){
+ p.subjects=p.subjects||[];p.subjectMeta=p.subjectMeta||{};p.contents=p.contents||[];p.sessions=p.sessions||[];
+ p.questions=p.questions||[];p.discursivas=p.discursivas||[];p.reviews=p.reviews||[];p.plan=p.plan||[];
+ p.examInfo=p.examInfo||{name:p.name||'',banca:'',date:'',vacancies:'',notes:''};
+ p.goalDay=p.goalDay??5;p.goalWeek=p.goalWeek??30;
+ return p;
+}
+state.projects=state.projects.map(normalize);
+let editId=null,timerSec=0,timerInt=null;
+
+function cp(){return state.projects.find(p=>p.id===state.currentProjectId)||null}
+function save(){
+ localStorage.setItem(stateStorageKey,JSON.stringify(state));render();
+ if(C.user&&C.sb){clearTimeout(cloudStateSaveTimer);cloudStateSaveTimer=setTimeout(()=>persistUserStateToCloud(),500)}
+}
+async function persistUserStateToCloud(){
+ if(!C.user||!C.sb)return;
+ const r=await C.sb.from('app_user_state').upsert({user_id:C.user.id,state:state,updated_at:new Date().toISOString()},{onConflict:'user_id'});
+ if(r.error&&!cloudStateSchemaWarned){cloudStateSchemaWarned=true;console.warn('Sincronização dos projetos na nuvem indisponível. Execute a migração SQL app_user_state.sql no Supabase.',r.error.message)}
+}
+function emptyLocalState(){return {userName:'',currentProjectId:null,projects:[]}}
+async function loadLocalStateForUser(user){
+ if(!user||!user.id)return;
+ if(activeLocalUserId===user.id)return;
+ const legacyState=JSON.parse(localStorage.getItem(KEY)||'null');activeLocalUserId=user.id;stateStorageKey=KEY+'_user_'+user.id;
+ let cloudState=null;
+ try{const remote=await C.sb.from('app_user_state').select('state').eq('user_id',user.id).maybeSingle();if(!remote.error&&remote.data&&remote.data.state)cloudState=remote.data.state;else if(remote.error&&!cloudStateSchemaWarned){cloudStateSchemaWarned=true;console.warn('A tabela app_user_state ainda não está disponível. Execute a migração SQL app_user_state.sql para habilitar a sincronização.',remote.error.message)}}catch(e){}
+ const stored=localStorage.getItem(stateStorageKey);
+ if(cloudState){state=cloudState;localStorage.setItem(stateStorageKey,JSON.stringify(state))}
+ else if(stored){try{state=JSON.parse(stored)}catch(e){state=emptyLocalState()}}
+ else if(String(user.email||'').toLowerCase()==='roger.eng.telecom@gmail.com') {
+  // Migra os dados locais existentes para a conta do proprietário, sem copiá-los para outras contas.
+  state=legacyState||emptyLocalState();
+  if(!state.projects)state=emptyLocalState();
+  localStorage.setItem(stateStorageKey,JSON.stringify(state));
+ } else { state=emptyLocalState();localStorage.setItem(stateStorageKey,JSON.stringify(state)); }
+ state.projects=(state.projects||[]).map(normalize);
+ // Se a conta principal ainda não tem projeto, cria Limeira com o catálogo Regular Fiscal.
+ if(String(user.email||'').toLowerCase()==='roger.eng.telecom@gmail.com'&&!state.projects.some(p=>String(p.name||'').toLowerCase()==='auditor fiscal de limeira')){
+  try{
+   const r=await C.sb.from('courses').select('id,name').eq('name','Regular Fiscal').maybeSingle();
+   if(r.data){const [su,to]=await Promise.all([C.sb.from('subjects').select('id,name').eq('course_id',r.data.id).order('name'),C.sb.from('topics').select('id,subject_id,name,tec_url,position').order('position')]);
+    const subjects=su.data||[],topics=(to.data||[]).filter(t=>subjects.some(a=>a.id===t.subject_id));
+    const proj=normalize({id:crypto.randomUUID(),name:'Auditor Fiscal de Limeira',type:'pos',createdAt:today(),courseId:r.data.id,courseName:r.data.name,subjects:subjects.map(a=>a.name),examInfo:{name:'Auditor Fiscal de Limeira',banca:'Avança SP',date:'',vacancies:'1',notes:''}});
+    proj.contents=topics.map(t=>({id:crypto.randomUUID(),subject:subjects.find(a=>a.id===t.subject_id).name,name:t.name,priority:'Normal',status:'pendente',progress:0,notes:'',reviewsGenerated:false,tecUrl:t.tec_url||''}));state.projects.push(proj);if(!state.currentProjectId)state.currentProjectId=proj.id;localStorage.setItem(stateStorageKey,JSON.stringify(state));
+   }
+  }catch(e){console.warn('Não foi possível inicializar o projeto a partir do catálogo:',e)}
+ }
+ render();
+}
+function esc(s){return String(s??'').replace(/[&<>"']/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#039;'}[c]))}
+function ymd(d){return d.getFullYear()+'-'+String(d.getMonth()+1).padStart(2,'0')+'-'+String(d.getDate()).padStart(2,'0')}
+function today(){return ymd(new Date())}
+function yesterday(){let d=new Date();d.setDate(d.getDate()-1);return ymd(d)}
+function fmt(s){return `${String(Math.floor(s/3600)).padStart(2,'0')}:${String(Math.floor(s%3600/60)).padStart(2,'0')}:${String(s%60).padStart(2,'0')}`}
+function hm(s){return `${Math.floor(s/3600)}h ${String(Math.floor(s%3600/60)).padStart(2,'0')}min`}
+function daysLeft(d){if(!d)return null;const target=new Date(d+'T00:00:00'),now=new Date();now.setHours(0,0,0,0);return Math.ceil((target-now)/86400000)}
+function formatToday(){const d=new Date(),s=d.toLocaleDateString('pt-BR',{weekday:'long',day:'numeric',month:'long',year:'numeric'});return s.charAt(0).toUpperCase()+s.slice(1)}
+const motivPhrases=['A aprovação é construída um dia de cada vez.','Quem sonha grande, estuda mais.','Foco na sua trajetória, não na do outro.','Hoje você está um dia mais perto da posse.','Disciplina vence talento quando o talento não estuda.','Sua rotina de hoje é a aprovação de amanhã.','Constância supera intensidade.','Cada questão resolvida é um passo à frente.','Não pare até se orgulhar.','A prova é só o resultado do que você fez todos os dias.'];
+function motivationalForToday(){const d=new Date(),start=new Date(d.getFullYear(),0,0),diff=d-start,dayOfYear=Math.floor(diff/86400000);return motivPhrases[dayOfYear%motivPhrases.length]}
+
+/* Edital verticalizado enviado pela usuária */
+const EDITAL_CONTAGEM_AUDITOR={name:'Contagem/MG - Auditor de Controle Interno (Ciências Contábeis)',subjects:["Língua Portuguesa", "Raciocínio Lógico", "Conhecimentos Gerais do Município", "Auditoria e Controle Interno", "Administração Pública", "Administração Financeira e Orçamentária", "Contabilidade Geral", "Contabilidade Pública"],contents:[{"subject": "Língua Portuguesa", "name": "Compreensão e interpretação de textos"}, {"subject": "Língua Portuguesa", "name": "Gêneros e tipos de textos"}, {"subject": "Língua Portuguesa", "name": "Variação linguística: diversidade de usos da língua"}, {"subject": "Língua Portuguesa", "name": "Discursos direto, indireto e indireto livre"}, {"subject": "Língua Portuguesa", "name": "Coerência e coesão textuais"}, {"subject": "Língua Portuguesa", "name": "Estratégias argumentativas"}, {"subject": "Língua Portuguesa", "name": "Processos de formação de palavras"}, {"subject": "Língua Portuguesa", "name": "Classes de palavras: identificação, flexão e emprego de substantivos, adjetivos, pronomes, verbos, advérbios, preposições e conjunções"}, {"subject": "Língua Portuguesa", "name": "Verbo: flexão, conjugação, correlação dos modos e tempos verbais, vozes"}, {"subject": "Língua Portuguesa", "name": "Estrutura da oração e do período: aspectos sintáticos e semânticos"}, {"subject": "Língua Portuguesa", "name": "Concordância verbal e nominal"}, {"subject": "Língua Portuguesa", "name": "Regência verbal e nominal"}, {"subject": "Língua Portuguesa", "name": "Uso dos pronomes relativos"}, {"subject": "Língua Portuguesa", "name": "Colocação dos pronomes pessoais oblíquos átonos"}, {"subject": "Língua Portuguesa", "name": "Emprego do sinal indicativo da crase"}, {"subject": "Língua Portuguesa", "name": "Usos da pontuação"}, {"subject": "Língua Portuguesa", "name": "Ortografia oficial"}, {"subject": "Língua Portuguesa", "name": "Acentuação gráfica"}, {"subject": "Raciocínio Lógico", "name": "Conjuntos numéricos: naturais, inteiros, racionais e reais"}, {"subject": "Raciocínio Lógico", "name": "Operações de adição, subtração, multiplicação, divisão, potenciação e radiciação; números decimais; valor absoluto; propriedades no conjunto dos números naturais; decomposição de um número natural em fatores primos; múltiplos e divisores; máximo divisor comum e mínimo múltiplo comum"}, {"subject": "Raciocínio Lógico", "name": "Razões e proporções: grandezas direta e inversamente proporcionais; regra de três simples e composta"}, {"subject": "Raciocínio Lógico", "name": "Porcentagem"}, {"subject": "Raciocínio Lógico", "name": "Grandezas e medidas: quantidade, tempo, comprimento, capacidade e massa"}, {"subject": "Raciocínio Lógico", "name": "Equações do 1º grau, sistemas de equações do 1º grau e função do 1º grau: resolução de problemas"}, {"subject": "Raciocínio Lógico", "name": "Média aritmética simples e ponderada"}, {"subject": "Raciocínio Lógico", "name": "Noções de lógica matemática: proposições simples e compostas; conectivos lógicos; tabelas-verdade; negação de proposições; equivalências e implicações lógicas; quantificadores"}, {"subject": "Raciocínio Lógico", "name": "Argumentação lógica: premissas e conclusões; inferências; análise e validade de argumentos"}, {"subject": "Raciocínio Lógico", "name": "Diagramas lógicos"}, {"subject": "Raciocínio Lógico", "name": "Linguagem dos conjuntos: notação e representação; elementos e relação de pertinência; igualdade de conjuntos; relação de inclusão e subconjuntos; conjunto unitário, conjunto vazio, conjunto universo e conjunto das partes; conjuntos finitos e infinitos; operações com conjuntos - união, interseção, diferença e complementar"}, {"subject": "Raciocínio Lógico", "name": "Sequências lógicas com números, letras, palavras e figuras"}, {"subject": "Raciocínio Lógico", "name": "Problemas de associação lógica e de verdades e mentiras"}, {"subject": "Raciocínio Lógico", "name": "Análise combinatória: princípio fundamental da contagem, arranjos, permutações e combinações"}, {"subject": "Raciocínio Lógico", "name": "Probabilidade: conceitos básicos e cálculo de probabilidades em espaços amostrais finitos"}, {"subject": "Raciocínio Lógico", "name": "Resolução de problemas envolvendo raciocínio lógico e sequencial"}, {"subject": "Conhecimentos Gerais do Município", "name": "Conhecimentos Gerais e Atualidades: aspectos geográficos, históricos, físicos, econômicos, sociais, políticos e estatísticos do Município"}, {"subject": "Conhecimentos Gerais do Município", "name": "Noções de cidadania"}, {"subject": "Conhecimentos Gerais do Município", "name": "Símbolos municipais"}, {"subject": "Conhecimentos Gerais do Município", "name": "Atualidades nos assuntos relacionados a economia, ecologia, história, política, meio ambiente, justiça, segurança pública, saúde, cultura, educação, religião, qualidade de vida, esportes, turismo, georreferenciamento, inovações tecnológicas e científicas do Município"}, {"subject": "Conhecimentos Gerais do Município", "name": "Questões da realidade, econômica, cultural, história, geográfica e socioambiental do Município"}, {"subject": "Conhecimentos Gerais do Município", "name": "Humanidades: movimentos artísticos, culturais e sociais do Município"}, {"subject": "Conhecimentos Gerais do Município", "name": "Legislações Municipais: Lei Orgânica do Município de Contagem/MG"}, {"subject": "Conhecimentos Gerais do Município", "name": "Estatuto dos Servidores Públicos do Município de Contagem/MG (Lei Municipal nº 2.160/1990)"}, {"subject": "Conhecimentos Gerais do Município", "name": "Plano de Cargos, Carreira e Salários do Município de Contagem/MG (Lei Municipal nº 105/2011 e atualizações)"}, {"subject": "Conhecimentos Gerais do Município", "name": "Notícias em Geral: Site da Prefeitura Municipal de Contagem/MG"}, {"subject": "Auditoria e Controle Interno", "name": "Aspectos gerais de auditoria: normas, objetivo e controle de qualidade; Ética Profissional e Responsabilidade Legal; Condução da auditoria em conformidade com as normas de auditoria; Auditoria Interna e Externa: conceito, objetivos, responsabilidades, funções e atribuições; Planejamento e desenvolvimento do plano de auditoria"}, {"subject": "Auditoria e Controle Interno", "name": "Programas de auditoria"}, {"subject": "Auditoria e Controle Interno", "name": "Papéis de trabalho"}, {"subject": "Auditoria e Controle Interno", "name": "Relatório de auditoria; Estratégia de auditoria, sistema de informações e controle interno;"}, {"subject": "Auditoria e Controle Interno", "name": "Testes de auditoria: substantivos, de observância, revisão analítica; Procedimentos de Auditoria: inspeção, observação, investigação, confirmação, cálculo, procedimentos Analíticos;"}, {"subject": "Auditoria e Controle Interno", "name": "Tipos de auditoria: auditoria de conformidade; auditoria operacional; auditoria de demonstrações contábeis; auditoria de sistemas financeiros; atividades de estudo e consultoria; atividades de detecção de fraude; Metodologias e habilidades em auditoria governamental: mensuração de desempenho e avaliação de programas; Governança e análise de risco"}, {"subject": "Auditoria e Controle Interno", "name": "O papel da auditoria na estrutura de governança"}, {"subject": "Auditoria e Controle Interno", "name": "Estrutura conceitual de análise de risco (COSO)"}, {"subject": "Auditoria e Controle Interno", "name": "Elementos de risco e controle"}, {"subject": "Auditoria e Controle Interno", "name": "Aplicação da estrutura conceitual de análise de risco"}, {"subject": "Auditoria e Controle Interno", "name": "Governança no setor público; Amostragem estatística: tipo de amostragem, tamanho da amostra, risca de amostragem, seleção da amostra, avaliação do resultado do teste; Métodos quantitativos - estatística descritiva, uso de tabelas e gráficos em relatório de auditoria, medidas de tendência central (média, moda e mediana) e medidas de dispersão (desvio-padrão e coeficiente de variação), revisão analítica; Métodos qualitativos: entrevistas, questionários e grupo focal"}, {"subject": "Auditoria e Controle Interno", "name": "Técnicas de coleta e análise de dados e pesquisas; Uso do trabalho de outros profissionais: Auditor Independente, Auditor Interno, Especialista de Outra Área"}, {"subject": "Administração Pública", "name": "A construção dos Estados nacionais"}, {"subject": "Administração Pública", "name": "Estado: conceito e evolução do Estado moderno"}, {"subject": "Administração Pública", "name": "Estado, governo e aparelho do Estado"}, {"subject": "Administração Pública", "name": "Estruturação do Estado no Brasil: a construção da república, da democracia, da federação, dos aparelhos do Estado e da administração pública"}, {"subject": "Administração Pública", "name": "A burocracia e o Estado"}, {"subject": "Administração Pública", "name": "Poder, racionalidade e tomada de decisões"}, {"subject": "Administração Pública", "name": "Ética e Gestão Pública"}, {"subject": "Administração Pública", "name": "Política, planejamento e governo"}, {"subject": "Administração Pública", "name": "Relações entre política e administração; limites e possibilidades de atuação da esfera pública na produção e regulação de bens públicos; instituições não-governamentais e o exercício do poder público"}, {"subject": "Administração Pública", "name": "Coordenação executiva: desafios da articulação versus a fragmentação de ações governamentais"}, {"subject": "Administração Pública", "name": "Dimensões da coordenação: intragovernamental, intergovernamental e governo-sociedade"}, {"subject": "Administração Pública", "name": "Democracia, descentralização, atores sociais, gestão local"}, {"subject": "Administração Pública", "name": "Poder local e gestão municipal"}, {"subject": "Administração Pública", "name": "Teorias e modelos de análise contemporâneos de políticas públicas"}, {"subject": "Administração Pública", "name": "Federalismo e descentralização de políticas públicas no Brasil"}, {"subject": "Administração Pública", "name": "Burocratas e discricionariedade no processo de elaboração de políticas públicas"}, {"subject": "Administração Pública", "name": "Implementação de políticas públicas: problemas, dilemas e desafios"}, {"subject": "Administração Pública", "name": "Avaliação de políticas públicas: principais componentes e impactos das políticas públicas"}, {"subject": "Administração Pública", "name": "Mobilização, organização e participação social nos processos de gestão das instituições estatais: conselhos, conferências e outros fóruns"}, {"subject": "Administração Pública", "name": "Mecanismos legais e institucionais de ampliação, diversificação e garantia de direitos individuais, coletivos e difusos"}, {"subject": "Administração Financeira e Orçamentária", "name": "Planejamento e Orçamento na Constituição de 1988: Lei de Diretrizes Orçamentárias (LDO), Lei Orçamentária Anual (LOA) e Plano Plurianual (PPA);"}, {"subject": "Administração Financeira e Orçamentária", "name": "Orçamento público: conceitos, princípios orçamentários, receitas e despesas orçamentárias, orçamento tradicional, orçamento-programa, objetivos da política orçamentária, integração entre planejamento e orçamento e ciclo orçamentário;"}, {"subject": "Administração Financeira e Orçamentária", "name": "Orçamento e Gestão das organizações do setor público: mensuração do desempenho e controle orçamentário;"}, {"subject": "Administração Financeira e Orçamentária", "name": "Conceituação e classificação da Receita Pública: Classificação da receita pública orçamentária por categoria econômica no Brasil"}, {"subject": "Administração Financeira e Orçamentária", "name": "Classificação das Despesas Orçamentárias, segundo a finalidade, natureza e agente (classificação funcional, por estrutura programática, por natureza e institucional);"}, {"subject": "Administração Financeira e Orçamentária", "name": "Créditos orçamentários iniciais e adicionais;"}, {"subject": "Administração Financeira e Orçamentária", "name": "Dívida pública flutuante e fundada;"}, {"subject": "Administração Financeira e Orçamentária", "name": "Patrimônio público"}, {"subject": "Administração Financeira e Orçamentária", "name": "Lei Federal nº 4.320/1964 e alterações posteriores"}, {"subject": "Administração Financeira e Orçamentária", "name": "Lei de Responsabilidade Fiscal (Lei Complementar Federal nº 101/2000)"}, {"subject": "Administração Financeira e Orçamentária", "name": "Lei Orgânica do Município"}, {"subject": "Contabilidade Geral", "name": "Lei Federal n° 6.404/1976, alterações e legislação complementar"}, {"subject": "Contabilidade Geral", "name": "Lei Federal nº 10.973/2004"}, {"subject": "Contabilidade Geral", "name": "Lei Federal n° 11.638/2007, alterações e legislação complementar"}, {"subject": "Contabilidade Geral", "name": "Lei Federal n° 11.941/2009, alterações e legislação complementar"}, {"subject": "Contabilidade Geral", "name": "Lei Federal n° 13.243/2016"}, {"subject": "Contabilidade Geral", "name": "Estatuto Nacional da Microempresa e da Empresa de Pequeno Porte (Lei Federal Complementar nº 123/2006, e atualizações)"}, {"subject": "Contabilidade Geral", "name": "Código tributário Nacional (Lei Federal nº 5.172/1966, e alterações)"}, {"subject": "Contabilidade Geral", "name": "Pronunciamentos do Comitê de Pronunciamentos Contábeis (CPC)"}, {"subject": "Contabilidade Geral", "name": "Normas Brasileira de Contabilidade"}, {"subject": "Contabilidade Geral", "name": "Elaboração de demonstrações contábeis pela legislação societária, e pelos pronunciamentos contábeis do Comitê de Pronunciamentos Contábeis (CPC)"}, {"subject": "Contabilidade Geral", "name": "Disponibilidades - caixa e equivalentes de caixa: conteúdo, classificação e critérios de avaliação"}, {"subject": "Contabilidade Geral", "name": "Contas a receber: conceito, conteúdo e critérios contábeis"}, {"subject": "Contabilidade Geral", "name": "Estoques: conceito e classificação"}, {"subject": "Contabilidade Geral", "name": "Instrumentos financeiros: reconhecimento, mensuração e evidenciação"}, {"subject": "Contabilidade Geral", "name": "Mensuração do valor justo"}, {"subject": "Contabilidade Geral", "name": "Contabilização de investimentos em coligadas e controladas"}, {"subject": "Contabilidade Geral", "name": "Ativo imobilizado: conceituação, classificação e conteúdo das contas"}, {"subject": "Contabilidade Geral", "name": "Ativos intangíveis: definição, reconhecimento e mensuração"}, {"subject": "Contabilidade Geral", "name": "Passivo exigível: conceitos gerais, avaliação e conteúdo do passivo"}, {"subject": "Contabilidade Geral", "name": "Fornecedores, obrigações fiscais e outras obrigações"}, {"subject": "Contabilidade Geral", "name": "Empréstimos e financiamentos, debêntures e outros títulos de dívida"}, {"subject": "Contabilidade Geral", "name": "Provisões, passivos contingentes e ativos contingentes"}, {"subject": "Contabilidade Geral", "name": "Patrimônio Líquido"}, {"subject": "Contabilidade Geral", "name": "Combinação de negócios, fusão, incorporação e cisão"}, {"subject": "Contabilidade Geral", "name": "Concessões: reconhecimento e mensuração"}, {"subject": "Contabilidade Geral", "name": "Receitas de vendas de produtos e serviços"}, {"subject": "Contabilidade Geral", "name": "Custo das mercadorias e dos produtos vendidos e dos serviços prestados"}, {"subject": "Contabilidade Geral", "name": "Despesas e outros resultados operacionais"}, {"subject": "Contabilidade Geral", "name": "Consolidação das demonstrações contábeis e demonstrações separadas"}, {"subject": "Contabilidade Geral", "name": "Correção integral das demonstrações contábeis"}, {"subject": "Contabilidade Geral", "name": "Análise econômico-financeira"}, {"subject": "Contabilidade Geral", "name": "ITG 2002 (R1) - Entidade sem finalidades de lucros"}, {"subject": "Contabilidade Pública", "name": "Sistema de Contabilidade Federal"}, {"subject": "Contabilidade Pública", "name": "Conceituação, objeto e campo de aplicação"}, {"subject": "Contabilidade Pública", "name": "Composição do Patrimônio Público"}, {"subject": "Contabilidade Pública", "name": "Variações Patrimoniais"}, {"subject": "Contabilidade Pública", "name": "Mensuração de ativos"}, {"subject": "Contabilidade Pública", "name": "Mensuração de passivos"}, {"subject": "Contabilidade Pública", "name": "Tratamento contábil aplicável aos impostos e contribuições"}, {"subject": "Contabilidade Pública", "name": "Sistema de custos"}, {"subject": "Contabilidade Pública", "name": "Plano de contas aplicado ao setor público"}, {"subject": "Contabilidade Pública", "name": "Demonstrações contábeis aplicadas ao setor público"}, {"subject": "Contabilidade Pública", "name": "Transações no setor público"}, {"subject": "Contabilidade Pública", "name": "Despesa pública: conceito, etapas, estágios e categorias econômicas"}, {"subject": "Contabilidade Pública", "name": "Receita pública: conceito, etapas, estágios e categorias econômicas"}, {"subject": "Contabilidade Pública", "name": "Execução orçamentária e financeira"}, {"subject": "Contabilidade Pública", "name": "Conta Única do Tesouro Nacional"}, {"subject": "Contabilidade Pública", "name": "Sistema Integrado de Administração Financeira: conceitos básicos, objetivos, características, instrumentos de segurança e principais documentos de entrada"}, {"subject": "Contabilidade Pública", "name": "Suprimento de Fundos"}, {"subject": "Contabilidade Pública", "name": "Manual de Demonstrativos Fiscais (MDF) - 13ª edição"}, {"subject": "Contabilidade Pública", "name": "Lei Complementar nº 101/2000 (Estabelece normas de finanças públicas voltadas para a responsabilidade na gestão fiscal e dá outras providências)"}, {"subject": "Contabilidade Pública", "name": "NBC TSP do Setor Público - Estrutura Conceitual - Estrutura Conceitual para Elaboração e Divulgação de Informação Contábil de Propósito Geral pelas Entidades do Setor Público e NBC TSP 1 a 34"}, {"subject": "Contabilidade Pública", "name": "Prestação de Contas ao Sistema de Informações Contábeis e Fiscais do Setor Público Brasileiro SICONFI"}, {"subject": "Contabilidade Pública", "name": "Prestação de contas ao Sistema de Informações sobre Orçamentos Públicos em Saúde - SIOPS"}, {"subject": "Contabilidade Pública", "name": "Direito Financeiro para elaboração e controle dos orçamentos e balanços da União, dos Estados, dos Municípios e do Distrito Federal (Lei Federal nº 4.320/1964, alterações e legislação complementar)"}]};
+
+
+/* ===== Hub (múltiplos projetos) ===== */
+function saveUserName(v){state.userName=v.trim();save()}
+function exportBackup(){
+ try{
+  const payload={_app:'painel-pos-edital',_version:1,_exportedAt:new Date().toISOString(),data:state};
+  const blob=new Blob([JSON.stringify(payload,null,1)],{type:'application/json'});
+  const url=URL.createObjectURL(blob);
+  const a=document.createElement('a');
+  a.href=url;a.download=`backup-estudos-${today()}.json`;
+  document.body.appendChild(a);a.click();document.body.removeChild(a);
+  setTimeout(()=>URL.revokeObjectURL(url),1000);
+ }catch(e){alert('Não foi possível gerar o backup: '+e.message)}
+}
+function importBackup(input){
+ const file=input.files&&input.files[0];if(!file)return;
+ const reader=new FileReader();
+ reader.onload=()=>{
+  try{
+   const parsed=JSON.parse(reader.result);
+   const incoming=parsed&&parsed.data?parsed.data:parsed;
+   if(!incoming||!Array.isArray(incoming.projects))throw new Error('Arquivo não parece ser um backup válido.');
+   const qtd=incoming.projects.length;
+   if(!confirm(`Importar este backup? Ele contém ${qtd} projeto(s) e vai SUBSTITUIR todos os dados atuais deste navegador.`)){input.value='';return}
+   state={userName:incoming.userName||'',currentProjectId:null,projects:incoming.projects.map(normalize)};
+   save();
+   alert('Backup importado com sucesso.');
+  }catch(e){
+   alert('Não foi possível importar: '+e.message);
+  }
+  input.value='';
+ };
+ reader.onerror=()=>{alert('Erro ao ler o arquivo.');input.value=''};
+ reader.readAsText(file);
+}
+async function openProjectModal(){pName.value='';pType.value='pos';pDate.value='';if(!await planLoadCatalog())return;const sel=document.getElementById('pCourse');sel.innerHTML=cOpts(PLAN_CATALOG.courses,'',c=>c.id,c=>c.name);document.getElementById('projectModal').classList.add('open')}
+function createProjectFromTemplate(tpl){
+ const proj=normalize({id:crypto.randomUUID(),name:tpl.name,type:'pos',createdAt:today(),templateKey:'contagem-auditor',
+  subjects:[...tpl.subjects],
+  examInfo:{name:tpl.name,banca:'',date:'',vacancies:'',notes:''}});
+ tpl.contents.forEach(c=>{proj.contents.push({id:crypto.randomUUID(),subject:c.subject,name:c.name,priority:'Normal',status:'pendente',progress:0,notes:'',reviewsGenerated:false})});
+ state.projects.push(proj);state.currentProjectId=proj.id;save();
+}
+function closeProjectModal(){document.getElementById('projectModal').classList.remove('open')}
+async function createProject(){
+ const name=pName.value.trim();if(!name)return alert('Dê um nome ao projeto.');
+ const course=PLAN_CATALOG.courses.find(c=>c.id===document.getElementById('pCourse').value);if(!course)return alert('Escolha um curso-base.');
+ const [su,to]=await Promise.all([C.sb.from('subjects').select('id,name').eq('course_id',course.id).order('name'),C.sb.from('topics').select('id,subject_id,name,tec_url,position').order('position')]);
+ if(!cloudOk(su)||!cloudOk(to))return;
+ const subjects=su.data||[],topics=(to.data||[]).filter(t=>subjects.some(a=>a.id===t.subject_id));
+ const proj=normalize({id:crypto.randomUUID(),name,type:pType.value,createdAt:today(),courseId:course.id,courseName:course.name,subjects:subjects.map(a=>a.name),examInfo:{name,banca:'',date:pDate.value||'',vacancies:'',notes:''}});
+ proj.contents=topics.map(t=>({id:crypto.randomUUID(),subject:subjects.find(a=>a.id===t.subject_id).name,name:t.name,priority:'Normal',status:'pendente',progress:0,notes:'',reviewsGenerated:false,tecUrl:t.tec_url||''}));
+ state.projects.push(proj);state.currentProjectId=proj.id;
+ closeProjectModal();save();
+}
+function openProject(id){state.currentProjectId=id;save()}
+function goToHub(){state.currentProjectId=null;save()}
+function deleteProject(id){if(!confirm('Excluir este projeto e todos os dados dele? Essa ação não pode ser desfeita.'))return;state.projects=state.projects.filter(p=>p.id!==id);if(state.currentProjectId===id)state.currentProjectId=null;save()}
+function deleteCurrentProjectPrompt(){const p=cp();if(p)deleteProject(p.id)}
+function renderHub(){
+ document.getElementById('userNameInput').value=state.userName||'';
+ document.getElementById('projectGrid').innerHTML=state.projects.length?state.projects.map(p=>{
+  const done=p.contents.filter(x=>x.status==='concluido').length,pct=p.contents.length?Math.round(done/p.contents.length*100):0;
+  const dl=daysLeft(p.examInfo.date);
+  return `<div class="project-card"><div class="row" style="justify-content:space-between"><h3>${esc(p.name)}</h3><span class="badge ${p.type==='pos'?'done':'warn'}">${p.type==='pos'?'Pós-Edital':'Pré-Edital'}</span></div><div class="label">${dl===null?'Sem data de prova':dl<0?'Prova encerrada':dl===0?'Prova é hoje':dl+' dias para a prova'}</div><div class="progress"><div class="bar" style="width:${pct}%"></div></div><div class="label">${pct}% do edital concluído</div><div class="row" style="justify-content:space-between;margin-top:4px"><button class="primary small" onclick="openProject('${p.id}')">Abrir</button><button class="danger small" onclick="deleteProject('${p.id}')">Excluir</button></div></div>`;
+ }).join(''):'<div class="empty">Nenhum projeto ainda. Crie o primeiro com o botão "+ Novo projeto".</div>';
+}
+
+/* ===== Render geral ===== */
+function tab(id,btn){document.querySelectorAll('#projectView .tab').forEach(x=>x.classList.remove('active'));document.getElementById(id).classList.add('active');document.querySelectorAll('#projectView nav button[data-tab]').forEach(x=>x.classList.remove('active'));btn.classList.add('active')}
+function fillSelects(proj){
+ const opts=proj.subjects.map(x=>`<option>${esc(x)}</option>`).join('');
+ ['timerSubject','cSubject','dSubject','sSubject'].forEach(id=>document.getElementById(id).innerHTML=opts);
+ const fs=document.getElementById('filterSubject'),old=fs.value;fs.innerHTML='<option value="">Todas as matérias</option>'+opts;fs.value=old;
+ const msf=document.getElementById('manualSubjectFilter'),oldMsf=msf.value;msf.innerHTML='<option value="">Todas as matérias</option>'+opts;msf.value=(proj.subjects.includes(oldMsf))?oldMsf:'';
+ renderManualContentList(proj);
+}
+function onManualTypeChange(){const show=document.getElementById('manualType').value==='Questões'?'':'none';document.getElementById('manualQCount').style.display=show;document.getElementById('manualQCorrect').style.display=show}
+function renderManualContentList(proj){
+ const bySubject={};
+ proj.contents.forEach(c=>{(bySubject[c.subject]=bySubject[c.subject]||[]).push(c)});
+ let html='';
+ proj.subjects.forEach(s=>{
+  const items=bySubject[s]||[];
+  html+=`<div class="manual-subject-group" data-subject="${esc(s)}" style="margin-bottom:10px"><div class="label" style="font-weight:600;margin-bottom:4px">${esc(s)}</div>`;
+  html+=`<label style="display:flex;gap:8px;align-items:center;padding:3px 0;font-size:13.5px"><input type="checkbox" class="manual-content-check" value="g:${encodeURIComponent(s)}" style="width:auto"> Estudo geral de ${esc(s)} (sem conteúdo específico)</label>`;
+  items.forEach(c=>{
+   html+=`<label style="display:flex;gap:8px;align-items:center;padding:3px 0;font-size:13.5px"><input type="checkbox" class="manual-content-check" value="c:${c.id}" style="width:auto"> ${esc(c.name)}</label>`;
+  });
+  html+='</div>';
+ });
+ document.getElementById('manualContentList').innerHTML=html||'<div class="empty">Cadastre matérias para poder selecionar conteúdos aqui.</div>';
+ filterManualContentList();
+}
+function filterManualContentList(){
+ const sel=document.getElementById('manualSubjectFilter').value;
+ document.querySelectorAll('#manualContentList .manual-subject-group').forEach(g=>{
+  g.style.display=(!sel||g.dataset.subject===sel)?'block':'none';
+ });
+}
+function render(){
+ const proj=cp();
+ if(!proj){
+  document.getElementById('hubView').style.display='block';
+  document.getElementById('projectView').style.display='none';
+  document.getElementById('appTitle').textContent='Meus projetos';
+  document.getElementById('todayDate').textContent=formatToday();
+  renderHub();
+  return;
+ }
+ document.getElementById('hubView').style.display='none';
+ document.getElementById('projectView').style.display='flex';
+ document.getElementById('appTitle').textContent=proj.name;
+ document.getElementById('todayDate').textContent=formatToday();
+ document.getElementById('projName').textContent=proj.name;
+ document.getElementById('userNameInput2').value=state.userName||'';
+ document.getElementById('motivational').textContent=motivationalForToday();
+ fillSelects(proj);
+ const ts=proj.sessions.filter(x=>x.date===today()).reduce((a,x)=>a+x.seconds,0);
+ const done=proj.contents.filter(x=>x.status==='concluido').length;
+ const pct=proj.contents.length?Math.round(done/proj.contents.length*100):0;
+ document.getElementById('overallBar').style.width=pct+'%';document.getElementById('overallText').textContent=`${pct}% concluído · ${done} de ${proj.contents.length} conteúdos`;
+ renderSubjectProgress(proj);renderPriorities(proj);renderContents(proj);renderSessions(proj);
+ renderVert(proj);renderReviews(proj);renderDiscursivas(proj);renderPlan();renderPlanPending(proj);
+ renderPainelSummary(proj);renderPerfChart(proj);renderPerfPeriod();
+ document.getElementById('goalDay').value=proj.goalDay;document.getElementById('goalWeek').value=proj.goalWeek;
+ document.getElementById('dayBar').style.width=Math.min(100,ts/(proj.goalDay*3600||1)*100)+'%';document.getElementById('dayText').textContent=`Hoje: ${hm(ts)} de ${proj.goalDay}h`;
+ if(document.getElementById('dDate')&&!document.getElementById('dDate').value)document.getElementById('dDate').value=today();
+ if(document.getElementById('manualDate')&&!document.getElementById('manualDate').value)document.getElementById('manualDate').value=today();
+ if(document.getElementById('perfDay')&&!document.getElementById('perfDay').value)document.getElementById('perfDay').value=today();
+ if(document.getElementById('perfMonth')&&!document.getElementById('perfMonth').value)document.getElementById('perfMonth').value=today().slice(0,7);
+ if(document.getElementById('perfYear')&&!document.getElementById('perfYear').value)document.getElementById('perfYear').value=new Date().getFullYear();
+}
+function renderSubjectProgress(proj){
+ let html=proj.subjects.map(s=>{let a=proj.contents.filter(x=>x.subject===s),d=a.filter(x=>x.status==='concluido').length,p=a.length?Math.round(a.reduce((z,x)=>z+(x.progress||0),0)/a.length):0;return `<div style="margin:13px 0"><div class="row" style="justify-content:space-between"><b>${esc(s)}</b><span class="label">${d}/${a.length} concluídos · ${p}%</span></div><div class="progress" style="margin-top:6px"><div class="bar" style="width:${p}%"></div></div></div>`}).join('');
+ document.getElementById('subjectProgress').innerHTML=html||'<div class="empty">Cadastre suas matérias para acompanhar o edital.</div>';
+}
+function renderPriorities(proj){
+ let arr=proj.contents.filter(x=>x.status!=='concluido').sort((a,b)=>(b.priority==='Alta')-(a.priority==='Alta')).slice(0,6);
+ document.getElementById('priorities').innerHTML=arr.length?arr.map(x=>`<div style="padding:9px 0;border-bottom:1px solid var(--line)"><div class="row" style="justify-content:space-between"><b>${esc(x.name)}</b><span class="badge ${x.priority==='Alta'?'warn':''}">${esc(x.priority)}</span></div><div class="label">${esc(x.subject)} · ${x.progress||0}%</div>${x.notes?`<div class="label">Falta: ${esc(x.notes)}</div>`:''}</div>`).join(''):'<div class="empty">Nada pendente por aqui.</div>';
+}
+function renderContents(){
+ const proj=cp();if(!proj)return;
+ const sf=document.getElementById('filterSubject').value,st=document.getElementById('filterStatus').value,se=document.getElementById('searchContent').value.toLowerCase();
+ let arr=proj.contents.filter(x=>(!sf||x.subject===sf)&&(!st||x.status===st)&&(!se||x.name.toLowerCase().includes(se)||x.subject.toLowerCase().includes(se)));
+ document.getElementById('contentTable').innerHTML=arr.length?arr.map(x=>`<tr><td>${esc(x.subject)}</td><td><b>${esc(x.name)}</b>${x.notes?`<div class="label">Falta: ${esc(x.notes)}</div>`:''}</td><td><span class="badge ${x.status==='concluido'?'done':''}">${x.status==='concluido'?'Concluído':x.status==='andamento'?'Em andamento':'Pendente'}</span></td><td style="min-width:130px"><div class="progress"><div class="bar" style="width:${x.progress||0}%"></div></div><span class="label">${x.progress||0}%</span></td><td>${proj.questions.filter(q=>q.subject===x.subject&&q.topic===x.name).reduce((a,q)=>a+q.count,0)}</td><td><button class="secondary small" onclick="openContent('${x.id}')">Editar</button> <button class="danger small" onclick="deleteContent('${x.id}')">Excluir</button></td></tr>`).join(''):'<tr><td colspan="6" class="empty">Nenhum conteúdo encontrado.</td></tr>';
+}
+function renderPlanPending(proj){
+ const pend=proj.plan.filter(x=>x.done&&!x.logged).sort((a,b)=>a.date<b.date?1:-1);
+ document.getElementById('planPendingPanel').style.display=pend.length?'':'none';
+ document.getElementById('planPending').innerHTML=pend.map(x=>`<div class="row" style="justify-content:space-between;padding:9px 0;border-bottom:1px solid var(--line)"><div><div class="plan-title">${planTitleHtml(x)}</div><div class="label">${fmtDM(x.date)} · ${esc(x.type)}${x.minutes?' · '+fmtMin(x.minutes):''}</div></div><div class="row"><button class="primary small" onclick="planRegister('${x.id}')">Registrar estudo</button><button class="secondary small" onclick="planDismiss('${x.id}')">Dispensar</button></div></div>`).join('');
+}
+
+function planRegister(id){
+ const proj=cp();if(!proj)return;const x=proj.plan.find(p=>p.id===id);if(!x)return;
+ manualPlanId=id;
+ tab('lancamentos',document.querySelector('nav button[data-tab="lancamentos"]'));
+ renderManualContentList(proj);
+ document.getElementById('manualSubjectFilter').value='';filterManualContentList();
+ const keys=new Set(planItemContents(x).map(c=>{
+  if(!c.name)return 'g:'+encodeURIComponent(c.subject);
+  const f=proj.contents.find(z=>z.subject===c.subject&&z.name===c.name);return f?'c:'+f.id:null;
+ }).filter(Boolean));
+ document.querySelectorAll('.manual-content-check').forEach(chk=>{chk.checked=keys.has(chk.value)});
+ document.getElementById('manualType').value=x.type;onManualTypeChange();
+ document.getElementById('manualDate').value=x.date<=today()?x.date:today();
+ const mn=x.minutes||0;
+ document.getElementById('manualHoursH').value=Math.floor(mn/60)||'';document.getElementById('manualHoursM').value=mn%60||'';document.getElementById('manualHoursS').value='';
+ document.getElementById('manualQCount').value='';document.getElementById('manualQCorrect').value='';
+ const note=document.getElementById('manualFromPlan');
+ note.innerHTML=`Vindo do planejamento: <b>${esc(contentsText(planItemContents(x)))}</b>. Confira o tempo${x.type==='Questões'?', as questões feitas e os acertos':''} e clique em Registrar. <button class="secondary small" style="margin-left:6px" onclick="planUnlink()">Desvincular</button>`;
+ note.style.display='block';
+ const el=document.getElementById('registrarEstudo');if(el.scrollIntoView)el.scrollIntoView({behavior:'smooth',block:'start'});
+}
+
+function planUnlink(){manualPlanId=null;document.getElementById('manualFromPlan').style.display='none'}
+
+function planDismiss(id){const proj=cp();if(!proj)return;const x=proj.plan.find(p=>p.id===id);if(x){x.logged=true;save()}}
+
+function planItemContents(x){return x.contents&&x.contents.length?x.contents:[{subject:x.subject,name:x.topic||''}]}
+
+function planTitleHtml(x){
+ const groups=[],idx={};
+ planItemContents(x).forEach(c=>{if(!(c.subject in idx)){idx[c.subject]=groups.length;groups.push({s:c.subject,names:[]})}if(c.name)groups[idx[c.subject]].names.push(c.name)});
+ return groups.map(g=>`<div><b>${esc(g.s)}</b>${g.names.length?' · '+g.names.map(esc).join(', '):''}</div>`).join('');
+}
+
+function contentsText(items,fb){
+ const its=items&&items.length?items:[{subject:fb,name:''}];
+ const groups=[],idx={};
+ its.forEach(c=>{if(!(c.subject in idx)){idx[c.subject]=groups.length;groups.push({s:c.subject,n:[]})}if(c.name)groups[idx[c.subject]].n.push(c.name)});
+ return groups.map(g=>g.s+(g.n.length?' · '+g.n.join(', '):'')).join(' | ');
+}
+
+function toast(msg,actionLabel,actionFn){
+ document.querySelectorAll('.toast').forEach(e=>e.remove());
+ const t=document.createElement('div');t.className='toast';
+ const s=document.createElement('span');s.textContent=msg;t.appendChild(s);
+ if(actionLabel){const b=document.createElement('button');b.className='toast-btn';b.textContent=actionLabel;b.onclick=()=>{t.remove();actionFn()};t.appendChild(b)}
+ document.body.appendChild(t);
+ requestAnimationFrame(()=>t.classList.add('show'));
+ setTimeout(()=>{t.classList.remove('show');setTimeout(()=>t.remove(),300)},actionLabel?9000:5000);
+}
+
+function renderSessions(proj){
+ const tot={};proj.sessions.forEach(x=>{tot[x.subject]=(tot[x.subject]||0)+x.seconds});
+ const ent=Object.entries(tot).sort((a,b)=>b[1]-a[1]);
+ document.getElementById('sessionTotals').innerHTML=ent.length?ent.map(e=>`<span class="badge">${esc(e[0])} · ${hm(e[1])}</span>`).join(''):'<span class="label">Nenhuma hora lançada ainda.</span>';
+ let a=[...proj.sessions].reverse().slice(0,40);document.getElementById('sessionTable').innerHTML=a.length?a.map(x=>`<tr><td>${x.date.split('-').reverse().join('/')}</td><td>${esc(x.subject)}</td><td>${esc(x.topic||'—')}</td><td><span class="badge">${esc(x.type||'—')}</span></td><td>${hm(x.seconds)}</td><td><button class="secondary small" onclick="openSessionEdit('${x.id}')">Editar</button> <button class="danger small" onclick="deleteSession('${x.id}')">Excluir</button></td></tr>`).join(''):'<tr><td colspan="6" class="empty">Nenhuma sessão registrada.</td></tr>';
+}
+function deleteSession(id){const proj=cp();if(!proj)return;proj.sessions=proj.sessions.filter(x=>x.id!==id);save()}
+
+/* ===== Conteúdos ===== */
+function openContent(id=null){
+ editId=id;document.getElementById('contentModal').classList.add('open');document.getElementById('modalTitle').textContent=id?'Editar conteúdo':'Novo conteúdo';
+ const proj=cp();let x=id?proj.contents.find(a=>a.id===id):null;
+ document.getElementById('cSubject').value=x?.subject||proj.subjects[0];document.getElementById('cPriority').value=x?.priority||'Normal';document.getElementById('cName').value=x?.name||'';document.getElementById('cStatus').value=x?.status||'pendente';document.getElementById('cProgress').value=x?.progress??0;document.getElementById('cNotes').value=x?.notes||'';
+}
+function closeContent(){document.getElementById('contentModal').classList.remove('open')}
+function saveContent(){
+ const proj=cp();if(!proj)return;
+ let name=document.getElementById('cName').value.trim();if(!name)return alert('Informe o nome do conteúdo.');
+ let prevReviewsGenerated=false;
+ if(editId){const prev=proj.contents.find(a=>a.id===editId);if(prev)prevReviewsGenerated=!!prev.reviewsGenerated}
+ let x={id:editId||crypto.randomUUID(),subject:document.getElementById('cSubject').value,priority:document.getElementById('cPriority').value,name,status:document.getElementById('cStatus').value,progress:Math.max(0,Math.min(100,+document.getElementById('cProgress').value||0)),notes:document.getElementById('cNotes').value.trim(),reviewsGenerated:prevReviewsGenerated};
+ if(x.status==='concluido')x.progress=100;if(x.progress===100)x.status='concluido';if(x.progress>0&&x.progress<100&&x.status==='pendente')x.status='andamento';
+ let i=proj.contents.findIndex(a=>a.id===x.id);if(i>=0)proj.contents[i]=x;else proj.contents.push(x);
+ if(x.status==='concluido'&&!x.reviewsGenerated){generateReviews(proj,x);x.reviewsGenerated=true}
+ closeContent();save();
+}
+function deleteContent(id){const proj=cp();if(!proj)return;if(confirm('Excluir este conteúdo?')){proj.contents=proj.contents.filter(x=>x.id!==id);proj.reviews=proj.reviews.filter(r=>r.contentId!==id);save()}}
+
+/* ===== Cronômetro / questões / metas ===== */
+function startTimer(){if(timerInt)return;timerInt=setInterval(()=>{timerSec++;document.getElementById('timer').textContent=fmt(timerSec)},1000)}
+function pauseTimer(){clearInterval(timerInt);timerInt=null}
+function finishTimer(){pauseTimer();if(!timerSec)return;const proj=cp();if(!proj)return;proj.sessions.push({id:crypto.randomUUID(),date:today(),subject:document.getElementById('timerSubject').value,type:document.getElementById('timerType').value,topic:document.getElementById('timerTopic').value.trim(),seconds:timerSec});timerSec=0;document.getElementById('timer').textContent=fmt(0);document.getElementById('timerTopic').value='';save()}
+goalDay.onchange=()=>{const proj=cp();if(proj){proj.goalDay=+goalDay.value||0;save()}};
+goalWeek.onchange=()=>{const proj=cp();if(proj){proj.goalWeek=+goalWeek.value||0;save()}};
+
+/* ===== Matérias / edital verticalizado ===== */
+function ensureMeta(proj,s){if(!proj.subjectMeta[s])proj.subjectMeta[s]={questions:0,weight:1};return proj.subjectMeta[s]}
+function addSubject(inputId){const proj=cp();if(!proj)return;inputId=inputId||'newSubject';let el=document.getElementById(inputId),v=el.value.trim();if(!v||proj.subjects.includes(v))return;proj.subjects.push(v);el.value='';save()}
+function removeSubjectByName(s){const proj=cp();if(!proj)return;if(proj.contents.some(x=>x.subject===s))return alert('Essa matéria possui conteúdos cadastrados. Exclua ou altere os conteúdos antes de removê-la.');if(!confirm(`Excluir a matéria "${s}"?`))return;proj.subjects=proj.subjects.filter(x=>x!==s);delete proj.subjectMeta[s];save()}
+function renameSubject(el){
+ const proj=cp();if(!proj)return;
+ const oldName=el.dataset.old,newName=el.value.trim();
+ if(!newName){el.value=oldName;return}
+ if(newName===oldName)return;
+ if(proj.subjects.includes(newName)){alert('Já existe uma matéria com esse nome.');el.value=oldName;return}
+ const idx=proj.subjects.indexOf(oldName);if(idx===-1)return;
+ proj.subjects[idx]=newName;
+ if(proj.subjectMeta[oldName]){proj.subjectMeta[newName]=proj.subjectMeta[oldName];delete proj.subjectMeta[oldName]}
+ [proj.contents,proj.sessions,proj.questions,proj.reviews,proj.discursivas,proj.plan].forEach(arr=>arr.forEach(x=>{if(x.subject===oldName)x.subject=newName}));
+ save();
+}
+function updateMeta(s,field,val){const proj=cp();if(!proj)return;const m=ensureMeta(proj,s);m[field]=+val||0;save()}
+function addManualHours(){
+ const proj=cp();if(!proj)return;
+ const checks=[...document.querySelectorAll('.manual-content-check:checked')];
+ if(!checks.length)return alert('Selecione pelo menos um conteúdo estudado.');
+ const selected=checks.map(chk=>{
+  const v=chk.value;
+  if(v.startsWith('c:')){const c=proj.contents.find(x=>x.id===v.slice(2));return c?{subject:c.subject,name:c.name}:null}
+  if(v.startsWith('g:'))return{subject:decodeURIComponent(v.slice(2)),name:''};
+  return null;
+ }).filter(Boolean);
+ const n=selected.length;if(!n)return;
+ const h=+manualHoursH.value||0,m=+manualHoursM.value||0,sec=+manualHoursS.value||0;
+ const totalSecs=h*3600+m*60+sec;
+ if(totalSecs<=0)return alert('Informe uma quantidade de horas, minutos ou segundos válida.');
+ const type=manualType.value,date=manualDate.value||today(),isQuestoes=type==='Questões';
+ let qTotal=0,qCorrectTotal=0;
+ if(isQuestoes){
+  qTotal=+manualQCount.value||0;qCorrectTotal=+manualQCorrect.value||0;
+  if(qTotal<=0||qCorrectTotal<0||qCorrectTotal>qTotal)return alert('Confira a quantidade de questões e acertos.');
+ }
+ const groups=[],gidx={};
+ selected.forEach(it=>{if(!(it.subject in gidx)){gidx[it.subject]=groups.length;groups.push({subject:it.subject,names:[]})}if(it.name)groups[gidx[it.subject]].names.push(it.name)});
+ const gc=groups.length,secBase=Math.floor(totalSecs/gc),secRem=totalSecs-secBase*gc;
+ groups.forEach((gr,i)=>proj.sessions.push({id:crypto.randomUUID(),date,subject:gr.subject,type,topic:gr.names.join(' • '),seconds:secBase+(i<secRem?1:0)}));
+ const qBase=isQuestoes?Math.floor(qTotal/n):0,qRem=isQuestoes?qTotal-qBase*n:0;
+ const cBase=isQuestoes?Math.floor(qCorrectTotal/n):0,cRem=isQuestoes?qCorrectTotal-cBase*n:0;
+ selected.forEach((it,i)=>{
+  if(isQuestoes){
+   const qc=qBase+(i<qRem?1:0),cc=Math.min(cBase+(i<cRem?1:0),qc);
+   if(qc>0)proj.questions.push({date,subject:it.subject,topic:it.name,count:qc,correct:cc});
+  }
+ });
+ let planRef=null;
+ if(manualPlanId){const px=proj.plan.find(q=>q.id===manualPlanId);if(px){px.logged=true;planRef=px.id}manualPlanId=null;document.getElementById('manualFromPlan').style.display='none'}
+ const errors=isQuestoes?qTotal-qCorrectTotal:0;
+ let aviso='';
+ if(errors>0){
+  const due=addDays(date,6);
+  proj.reviews.push({id:crypto.randomUUID(),kind:'erradas',contentId:null,subject:selected[0].subject,items:selected.map(s=>({subject:s.subject,name:s.name})),name:`Refazer questões erradas (${errors})`,label:'Questões erradas',planId:planRef,studyDate:date,due,done:false});
+  aviso=`Criei uma revisão para refazer ${errors} questão(ões) errada(s) em ${due.split('-').reverse().join('/')}.`;
+ }
+ manualHoursH.value='';manualHoursM.value='';manualHoursS.value='';manualQCount.value='';manualQCorrect.value='';
+ save();
+ if(aviso)toast(aviso);
+}
+let editSessionId=null;
+function openSessionEdit(id){
+ const proj=cp();if(!proj)return;
+ const s=proj.sessions.find(x=>x.id===id);if(!s)return;
+ editSessionId=id;
+ const totalSec=Math.round(s.seconds);
+ sSubject.value=s.subject;sType.value=s.type||'Manual';sDate.value=s.date;sHoursH.value=Math.floor(totalSec/3600);sHoursM.value=Math.floor((totalSec%3600)/60);sHoursS.value=totalSec%60;sTopic.value=s.topic||'';
+ document.getElementById('sessionModal').classList.add('open');
+}
+function closeSessionModal(){document.getElementById('sessionModal').classList.remove('open')}
+function saveSessionEdit(){
+ const proj=cp();if(!proj)return;
+ const s=proj.sessions.find(x=>x.id===editSessionId);if(!s)return;
+ const h=+sHoursH.value||0,m=+sHoursM.value||0,sec=+sHoursS.value||0,secs=h*3600+m*60+sec;
+ if(secs<=0)return alert('Informe uma quantidade de horas, minutos ou segundos válida.');
+ s.subject=sSubject.value;s.type=sType.value;s.date=sDate.value||today();s.seconds=secs;s.topic=sTopic.value.trim();
+ closeSessionModal();save();
+}
+function renderVert(proj){
+ let rows=proj.subjects.map(s=>{
+  const meta=ensureMeta(proj,s),a=proj.contents.filter(x=>x.subject===s);
+  const prog=a.length?Math.round(a.reduce((z,x)=>z+(x.progress||0),0)/a.length):0;
+  const hours=proj.sessions.filter(x=>x.subject===s).reduce((z,x)=>z+x.seconds,0);
+  const score=(meta.questions||0)*(meta.weight||1)*(1-prog/100);
+  return{s,meta,prog,hours,score};
+ });
+ const maxScore=Math.max(1,...rows.map(r=>r.score));
+ rows.sort((a,b)=>b.score-a.score);
+ document.getElementById('vertTable').innerHTML=rows.length?rows.map(r=>{const rel=r.score/maxScore;const color=rel>0.66?'var(--red)':rel>0.33?'var(--gold)':'var(--accent)';
+  return `<tr><td><input value="${esc(r.s)}" data-old="${esc(r.s)}" onchange="renameSubject(this)" style="border:0;background:transparent;font:inherit;font-weight:600;padding:4px 2px;width:100%"></td><td><input type="number" min="0" value="${r.meta.questions||0}" onchange="updateMeta('${esc(r.s)}','questions',this.value)" style="width:80px"></td><td><input type="number" min="0" step=".5" value="${r.meta.weight||1}" onchange="updateMeta('${esc(r.s)}','weight',this.value)" style="width:70px"></td><td style="min-width:130px"><div class="progress"><div class="bar" style="width:${r.prog}%"></div></div><span class="label">${r.prog}%</span></td><td>${hm(r.hours)}</td><td style="min-width:120px"><div class="progress"><div class="bar" style="width:${Math.round(rel*100)}%;background:${color}"></div></div></td><td><button class="danger small" data-name="${esc(r.s)}" onclick="removeSubjectByName(this.dataset.name)">Excluir</button></td></tr>`;
+ }).join(''):'<tr><td colspan="7" class="empty">Cadastre matérias para montar o edital verticalizado.</td></tr>';
+}
+
+/* ===== Dados do concurso ===== */
+function openExamModal(){const proj=cp();if(!proj)return;const e=proj.examInfo;eName.value=e.name||'';eBanca.value=e.banca||'';eDate.value=e.date||'';eVacancies.value=e.vacancies||'';eNotes.value=e.notes||'';examModal.classList.add('open')}
+function closeExamModal(){examModal.classList.remove('open')}
+function saveExamInfo(){const proj=cp();if(!proj)return;proj.examInfo={name:eName.value.trim()||proj.name,banca:eBanca.value.trim(),date:eDate.value,vacancies:eVacancies.value.trim(),notes:eNotes.value.trim()};if(eName.value.trim())proj.name=eName.value.trim();closeExamModal();save()}
+
+/* ===== Ciclos de revisão ===== */
+function generateReviews(proj,x){
+ const base=new Date();base.setHours(0,0,0,0);
+ const intervals=[{d:1,label:'Revisão 24h'},{d:7,label:'Revisão 7 dias'},{d:15,label:'Revisão 15 dias'},{d:30,label:'Revisão 30 dias'}];
+ intervals.forEach(iv=>{const dt=new Date(base);dt.setDate(dt.getDate()+iv.d);proj.reviews.push({id:crypto.randomUUID(),contentId:x.id,subject:x.subject,name:x.name,label:iv.label,due:ymd(dt),done:false})});
+}
+function renderReviews(proj){
+ const t=today(),pending=proj.reviews.filter(r=>!r.done).sort((a,b)=>a.due<b.due?-1:1),overdue=pending.filter(r=>r.due<t).length;
+ document.getElementById('reviewSummary').textContent=pending.length?`${pending.length} pendente(s)${overdue?` · ${overdue} atrasada(s)`:''}`:'';
+ document.getElementById('reviewList').innerHTML=pending.length?pending.map(r=>`<div class="row" style="justify-content:space-between;padding:9px 0;border-bottom:1px solid var(--line)"><div><b>${esc(r.name)}</b><div class="label">${esc(r.subject)} · ${esc(r.label)} · ${r.due.split('-').reverse().join('/')}</div></div><div class="row"><span class="badge ${r.due<t?'red':''}">${r.due<t?'Atrasada':'Agendada'}</span><button class="secondary small" onclick="doneReview('${r.id}')">Concluir</button></div></div>`).join(''):'<div class="empty">Nenhuma revisão pendente. Conclua conteúdos para gerar o ciclo automaticamente.</div>';
+}
+function doneReview(id){const proj=cp();if(!proj)return;const r=proj.reviews.find(x=>x.id===id);if(r)r.done=true;save()}
+
+/* ===== Provas discursivas ===== */
+function addDiscursiva(){
+ const proj=cp();if(!proj)return;
+ let g=+dGrade.value,m=+dMax.value,subject=dSubject.value,theme=dTheme.value.trim()||'Discursiva';
+ if(!m||g<0||g>m)return alert('Confira a nota obtida e a nota máxima.');
+ proj.discursivas.push({id:crypto.randomUUID(),date:dDate.value||today(),subject,theme,grade:g,max:m,feedback:dFeedback.value.trim()});
+ dTheme.value='';dGrade.value='';dMax.value='';dFeedback.value='';save();
+}
+function deleteDiscursiva(id){const proj=cp();if(!proj)return;proj.discursivas=proj.discursivas.filter(x=>x.id!==id);save()}
+function renderDiscursivas(proj){
+ let arr=[...proj.discursivas].sort((a,b)=>a.date<b.date?1:-1);
+ document.getElementById('discTable').innerHTML=arr.length?arr.map(x=>`<tr><td>${x.date.split('-').reverse().join('/')}</td><td>${esc(x.subject)}</td><td><b>${esc(x.theme)}</b>${x.feedback?`<div class="label">${esc(x.feedback)}</div>`:''}</td><td>${x.grade}/${x.max}</td><td><button class="danger small" onclick="deleteDiscursiva('${x.id}')">Excluir</button></td></tr>`).join(''):'<tr><td colspan="5" class="empty">Nenhuma discursiva registrada.</td></tr>';
+ if(arr.length){
+  const avg=Math.round(arr.reduce((a,x)=>a+x.grade/x.max,0)/arr.length*100),last=arr[0],prev=arr[1];
+  let trend='';
+  if(prev){const diff=Math.round((last.grade/last.max-prev.grade/prev.max)*100);trend=diff>0?` <span class="badge done">▲ ${diff}%</span>`:diff<0?` <span class="badge red">▼ ${Math.abs(diff)}%</span>`:' <span class="badge">= estável</span>'}
+  document.getElementById('discStats').innerHTML=`<div class="row"><span class="badge">Média geral: ${avg}%</span><span class="badge">Última: ${Math.round(last.grade/last.max*100)}%${trend}</span><span class="badge">${arr.length} discursiva(s)</span></div>`;
+ }else document.getElementById('discStats').innerHTML='';
+}
+
+/* ===== Visão geral: resumo, dias/horas, gráfico ===== */
+function renderPainelSummary(proj){
+ const y=yesterday();
+ const yHours=proj.sessions.filter(x=>x.date===y).reduce((a,x)=>a+x.seconds,0);
+ const yQ=proj.questions.filter(x=>x.date===y).reduce((a,x)=>a+x.count,0);
+ const yC=proj.questions.filter(x=>x.date===y).reduce((a,x)=>a+x.correct,0);
+ document.getElementById('ySumHours').textContent=hm(yHours);
+ document.getElementById('yQCount').textContent=yQ;
+ document.getElementById('yAcc').textContent=yQ?Math.round(yC/yQ*100)+'%':'—';
+ document.getElementById('yesterdayDateLabel').textContent=y.split('-').reverse().join('/');
+ document.getElementById('totalHoursAll').textContent=hm(proj.sessions.reduce((a,x)=>a+x.seconds,0));
+ const dl=daysLeft(proj.examInfo.date);
+ document.getElementById('mDays2').textContent=dl===null?'—':dl<0?'Encerrado':dl===0?'Hoje':dl;
+ document.getElementById('examDateLabel').textContent=proj.examInfo.date?proj.examInfo.date.split('-').reverse().join('/'):'Cadastre a data da prova';
+}
+function renderPerfChart(proj){
+ let map={};proj.questions.forEach(x=>{if(!map[x.subject])map[x.subject]={n:0,c:0};map[x.subject].n+=x.count;map[x.subject].c+=x.correct});
+ const bars=proj.subjects.map(s=>{
+  const info=map[s],acc=info&&info.n?Math.round(info.c/info.n*100):null;
+  const px=acc===null?4:Math.max(4,Math.round(acc/100*130));
+  const color=acc===null?'var(--line)':acc>=70?'var(--accent)':acc>=50?'var(--gold)':'var(--red)';
+  return `<div class="col"><div class="val">${acc===null?'—':acc+'%'}</div><div class="stick" style="height:${px}px;background:${color}"></div><div class="label name">${esc(s)}</div></div>`;
+ }).join('');
+ document.getElementById('perfChart').innerHTML=proj.subjects.length?`<div class="bars" style="height:190px">${bars}</div>`:'<div class="empty">Cadastre matérias e registre questões para ver o desempenho.</div>';
+}
+
+
+/* ===== Planejamento semanal ===== */
+let planWeekStart=null,editPlanId=null;
+const DOW=['Seg','Ter','Qua','Qui','Sex','Sáb','Dom'];
+function mondayOf(s){const d=new Date(s+'T12:00:00'),day=(d.getDay()+6)%7;d.setDate(d.getDate()-day);return ymd(d)}
+function addDays(s,n){const d=new Date(s+'T12:00:00');d.setDate(d.getDate()+n);return ymd(d)}
+function fmtDM(s){const p=s.split('-');return p[2]+'/'+p[1]}
+function fmtMin(min){const h=Math.floor(min/60),m=min%60;return h?(m?`${h}h ${String(m).padStart(2,'0')}min`:`${h}h`):`${m}min`}
+function ensurePlanWeek(){if(!planWeekStart)planWeekStart=mondayOf(today())}
+function planShiftWeek(n){ensurePlanWeek();planWeekStart=addDays(planWeekStart,7*n);renderPlan()}
+function planThisWeek(){planWeekStart=mondayOf(today());renderPlan()}
+function renderPlan(){
+ const proj=cp();if(!proj)return;
+ ensurePlanWeek();
+ const start=planWeekStart,days=[0,1,2,3,4,5,6].map(i=>addDays(start,i)),end=days[6];
+ document.getElementById('planWeekLabel').textContent=`Semana de ${fmtDM(start)} a ${fmtDM(end)}`+(start===mondayOf(today())?' · esta semana':'');
+ const items=proj.plan.filter(x=>x.date>=start&&x.date<=end);
+ const plannedMin=items.reduce((a,x)=>a+(x.minutes||0),0),done=items.filter(x=>x.done).length;
+ const studiedSec=proj.sessions.filter(x=>x.date>=start&&x.date<=end).reduce((a,x)=>a+x.seconds,0);
+ document.getElementById('planSummary').innerHTML=`<div class="card"><div class="label">Tempo previsto</div><div class="metric">${plannedMin?fmtMin(plannedMin):'—'}</div></div><div class="card"><div class="label">Itens concluídos</div><div class="metric">${done}/${items.length}</div></div><div class="card"><div class="label">Estudado de fato</div><div class="metric">${hm(studiedSec)}</div></div><div class="card"><div class="label">Meta semanal</div><div class="metric">${proj.goalWeek}h</div></div>`;
+ const t=today();
+ document.getElementById('planGrid').innerHTML=days.map((d,i)=>{
+  const its=items.filter(x=>x.date===d),tot=its.reduce((a,x)=>a+(x.minutes||0),0);
+  const list=its.map(x=>`<div class="plan-item ${x.done?'done':''}"><input type="checkbox" ${x.done?'checked':''} onchange="planToggle('${x.id}')"><div style="flex:1;min-width:0"><div class="plan-title"><b>${esc((x.items&&x.items.length?x.items:[{subject:x.subject,topic:x.topic}]).map(i=>i.subject+(i.topic?' · '+i.topic:'')).join(' + '))}</b></div><div class="label">${esc(x.type)}${x.minutes?' · '+fmtMin(x.minutes):''}${x.note?' · '+esc(x.note):''}</div><div class="row" style="margin-top:4px">${x.done?(x.logged?'<span class="badge done">Estudo registrado</span>':`<button class="primary small" onclick="planRegister('${x.id}')">Registrar estudo</button>`):''}<button class="secondary small" onclick="openPlanModal(null,'${x.id}')">Editar</button><button class="danger small" onclick="planDelete('${x.id}')">Excluir</button></div></div></div>`).join('');
+  return `<div class="plan-day ${d===t?'today':''}"><div class="row" style="justify-content:space-between"><h3>${DOW[i]} ${fmtDM(d)}</h3><span class="label">${tot?fmtMin(tot):''}</span></div>${list||'<div class="label">Nada planejado.</div>'}<button class="secondary small" style="margin-top:4px" onclick="openPlanModal('${d}')">+ Planejar</button></div>`;
+ }).join('');
+}
+let PLAN_CATALOG={courses:[],subjects:[],topics:[]},planContentRows=[];
+async function planLoadCatalog(){
+ if(!C.sb){alert('Entre na sua conta antes de planejar.');return false}
+ const [cr,su,to]=await Promise.all([
+  C.sb.from('courses').select('id,name').order('name'),
+  C.sb.from('subjects').select('id,course_id,name').order('name'),
+  C.sb.from('topics').select('id,subject_id,name,tec_url,position').order('position')
+ ]);
+ if(!cloudOk(cr)||!cloudOk(su)||!cloudOk(to))return false;
+ PLAN_CATALOG={courses:cr.data||[],subjects:su.data||[],topics:to.data||[]};
+ return true;
+}
+function planCourseSubjects(){return PLAN_CATALOG.subjects.filter(s=>s.course_id===document.getElementById('pnCourse').value)}
+function planRowMarkup(row,index){
+ const subjects=planCourseSubjects();
+ return `<div class="panel" style="padding:12px;margin:8px 0"><div class="row" style="justify-content:space-between"><b>Conteúdo ${index+1}</b>${index?`<button type="button" class="danger small" onclick="planRemoveContentRow(${index})">Remover</button>`:''}</div>
+ <div class="formgrid"><label>Matéria<select id="pnSubject_${index}" style="width:100%" onchange="planRefreshTopics(${index})">${cOpts(subjects,row.subjectId,x=>x.id,x=>x.name)}</select></label>
+ <label>Assunto<select id="pnTopic_${index}" style="width:100%" onchange="planTopicChanged(${index})"><option value="">Estudo geral (sem assunto específico)</option></select></label></div></div>`;
+}
+function planRenderContentRows(){document.getElementById('pnContentRows').innerHTML=planContentRows.map((r,i)=>planRowMarkup(r,i)).join('');planContentRows.forEach((r,i)=>planRefreshTopics(i,r.topicId));}
+function planCourseChanged(){planContentRows=[{subjectId:'',topicId:''}];planRenderContentRows();document.getElementById('pnLink').value='';}
+function planAddContentRow(){planContentRows.push({subjectId:'',topicId:''});planRenderContentRows()}
+function planRemoveContentRow(i){if(planContentRows.length<=1)return;planContentRows.splice(i,1);planRenderContentRows();planSyncDefaultLink()}
+function planRefreshTopics(index,selected){
+ const row=planContentRows[index];if(!row)return;
+ const subj=document.getElementById('pnSubject_'+index);if(!subj)return;
+ row.subjectId=subj.value;
+ const topics=PLAN_CATALOG.topics.filter(t=>t.subject_id===row.subjectId);
+ const sel=document.getElementById('pnTopic_'+index);if(!sel)return;
+ sel.innerHTML='<option value="">Estudo geral (sem assunto específico)</option>'+topics.map(t=>`<option value="${esc(t.id)}">${esc(t.name)}</option>`).join('');
+ const target=selected!==undefined?selected:row.topicId;
+ row.topicId=topics.some(t=>t.id===target)?target:'';sel.value=row.topicId;
+ if(index===0)planSyncDefaultLink();
+}
+function planTopicChanged(index){const row=planContentRows[index];if(!row)return;row.topicId=document.getElementById('pnTopic_'+index).value;if(index===0)planSyncDefaultLink()}
+function planSyncDefaultLink(){
+ const row=planContentRows[0];if(!row)return;
+ const topic=PLAN_CATALOG.topics.find(t=>t.id===row.topicId);
+ const link=document.getElementById('pnLink');if(!link)return;
+ if(!link.dataset.edited)link.value=topic&&topic.tec_url?topic.tec_url:'';
+}
+function planLinkEdited(){document.getElementById('pnLink').dataset.edited='1'}
+async function openPlanModal(date,id){
+ const proj=cp();if(!proj)return;
+ editPlanId=id||null;
+ const x=id?proj.plan.find(p=>p.id===id):null;
+ if(!await planLoadCatalog())return;
+ document.getElementById('planModalTitle').textContent=x?'Editar planejamento':'Planejar estudo';
+ const courseIds=[...new Set(PLAN_CATALOG.subjects.map(s=>s.course_id))];
+ const available=PLAN_CATALOG.courses.filter(c=>courseIds.includes(c.id));
+ document.getElementById('pnCourse').innerHTML=cOpts(available,x&&x.courseId?x.courseId:(proj.courseId|| (available[0]&&available[0].id)),c=>c.id,c=>c.name);
+ document.getElementById('pnDate').value=x?x.date:(date||today());
+ document.getElementById('pnType').value=x?x.type:'Teoria';
+ const oldItems=x&&Array.isArray(x.items)&&x.items.length?x.items:[{subject:x&&x.subject||'',topic:x&&x.topic||''}];
+ const course=document.getElementById('pnCourse').value;
+ planContentRows=oldItems.map(it=>{
+  const sub=PLAN_CATALOG.subjects.find(s=>s.course_id===course&&s.name===it.subject);
+  const topic=PLAN_CATALOG.topics.find(t=>t.subject_id===(sub&&sub.id)&&t.name===it.topic);
+  return {subjectId:sub?sub.id:'',topicId:topic?topic.id:''};
+ });
+ if(!planContentRows.length)planContentRows=[{subjectId:'',topicId:''}];
+ planRenderContentRows();
+ const link=document.getElementById('pnLink');link.dataset.edited='';link.value=x&&x.link?x.link:'';if(!x||!x.link)planSyncDefaultLink();
+ const min=x?(x.minutes||0):0;
+ document.getElementById('pnH').value=Math.floor(min/60)||'';document.getElementById('pnM').value=min%60||'';
+ document.getElementById('pnNote').value=x?(x.note||''):'';
+ document.getElementById('planModal').classList.add('open');
+}
+
+// Fechar o modal ao clicar fora do formulário ou pressionar Escape.
+document.addEventListener('click',function(event){
+ const modal=document.getElementById('planModal');
+ if(modal&&event.target===modal)closePlanModal();
+});
+document.addEventListener('keydown',function(event){
+ if(event.key==='Escape'){const modal=document.getElementById('planModal');if(modal&&modal.classList.contains('open'))closePlanModal();}
+});
+function closePlanModal(){
+ const modal=document.getElementById('planModal');
+ if(modal)modal.classList.remove('open');
+ editPlanId=null;
+}
+
+function planSave(){
+ const proj=cp();if(!proj)return;
+ const date=document.getElementById('pnDate').value;if(!date)return alert('Escolha o dia.');
+ const course=PLAN_CATALOG.courses.find(c=>c.id===document.getElementById('pnCourse').value);
+ const items=planContentRows.map((r,i)=>{
+  const subj=PLAN_CATALOG.subjects.find(s=>s.id===document.getElementById('pnSubject_'+i)?.value);
+  const topic=PLAN_CATALOG.topics.find(t=>t.id===document.getElementById('pnTopic_'+i)?.value);
+  return subj?{subject:subj.name,topic:topic?topic.name:'',subjectId:subj.id,topicId:topic?topic.id:null}:null;
+ }).filter(Boolean);
+ if(!course)return alert('Escolha um curso.');if(!items.length)return alert('Escolha pelo menos uma matéria.');
+ const minutes=(+document.getElementById('pnH').value||0)*60+(+document.getElementById('pnM').value||0);
+ const item={id:editPlanId||crypto.randomUUID(),date,courseId:course.id,course:course.name,items,subject:items[0].subject,topic:items[0].topic,link:document.getElementById('pnLink').value.trim(),type:document.getElementById('pnType').value,minutes,note:document.getElementById('pnNote').value.trim(),done:false};
+ if(item.link&&!/^https?:\/\//i.test(item.link))item.link='https://'+item.link;
+ const i=proj.plan.findIndex(p=>p.id===item.id);
+ if(i>=0){item.done=proj.plan[i].done;proj.plan[i]=item}else proj.plan.push(item);
+ planWeekStart=mondayOf(item.date);closePlanModal();save();
+}
+function planToggle(id){const proj=cp();if(!proj)return;const x=proj.plan.find(p=>p.id===id);if(x){x.done=!x.done;save()}}
+function planDelete(id){const proj=cp();if(!proj)return;if(!confirm('Excluir este item do planejamento?'))return;proj.plan=proj.plan.filter(p=>p.id!==id);save()}
+function planCopyPrevWeek(){
+ const proj=cp();if(!proj)return;ensurePlanWeek();
+ const ps=addDays(planWeekStart,-7),pe=addDays(planWeekStart,-1),we=addDays(planWeekStart,6);
+ const prev=proj.plan.filter(x=>x.date>=ps&&x.date<=pe);
+ if(!prev.length)return alert('Não há nada planejado na semana anterior.');
+ if(proj.plan.some(x=>x.date>=planWeekStart&&x.date<=we)&&!confirm('Esta semana já tem itens. Copiar mesmo assim?'))return;
+ prev.forEach(x=>proj.plan.push({...x,id:crypto.randomUUID(),date:addDays(x.date,7),done:false}));
+ save();
+}
+function planClearWeek(){
+ const proj=cp();if(!proj)return;ensurePlanWeek();
+ const we=addDays(planWeekStart,6);
+ if(!proj.plan.some(x=>x.date>=planWeekStart&&x.date<=we))return alert('Esta semana não tem itens.');
+ if(!confirm('Remover todos os itens planejados desta semana?'))return;
+ proj.plan=proj.plan.filter(x=>!(x.date>=planWeekStart&&x.date<=we));
+ save();
+}
+
+/* ===== Desempenho por dia / mês / ano ===== */
+function onPerfPeriodTypeChange(){
+ const t=document.getElementById('perfPeriodType').value;
+ document.getElementById('perfDay').style.display=t==='day'?'block':'none';
+ document.getElementById('perfMonth').style.display=t==='month'?'block':'none';
+ document.getElementById('perfYear').style.display=t==='year'?'block':'none';
+ renderPerfPeriod();
+}
+function inPeriod(dateStr,type,val){
+ if(!dateStr)return false;
+ if(type==='day')return dateStr===val;
+ if(type==='month')return dateStr.slice(0,7)===val;
+ if(type==='year')return dateStr.slice(0,4)===String(val);
+ return false;
+}
+function renderPerfPeriod(){
+ const proj=cp();if(!proj)return;
+ const type=document.getElementById('perfPeriodType').value;
+ let val;
+ if(type==='day')val=document.getElementById('perfDay').value||today();
+ else if(type==='month')val=document.getElementById('perfMonth').value||today().slice(0,7);
+ else val=document.getElementById('perfYear').value||new Date().getFullYear();
+
+ const qFiltered=proj.questions.filter(x=>inPeriod(x.date,type,val));
+ const sFiltered=proj.sessions.filter(x=>inPeriod(x.date,type,val));
+ const totalQ=qFiltered.reduce((a,x)=>a+x.count,0),totalC=qFiltered.reduce((a,x)=>a+x.correct,0),totalSec=sFiltered.reduce((a,x)=>a+x.seconds,0);
+
+ document.getElementById('perfPeriodSummary').innerHTML=`<div class="card"><div class="label">Questões feitas</div><div class="metric">${totalQ}</div></div><div class="card"><div class="label">Acertos</div><div class="metric">${totalC}</div></div><div class="card"><div class="label">% de acerto</div><div class="metric">${totalQ?Math.round(totalC/totalQ*100)+'%':'—'}</div></div><div class="card"><div class="label">Horas estudadas</div><div class="metric">${hm(totalSec)}</div></div>`;
+
+ let qMap={};qFiltered.forEach(x=>{if(!qMap[x.subject])qMap[x.subject]={n:0,c:0};qMap[x.subject].n+=x.count;qMap[x.subject].c+=x.correct});
+ let hMap={};sFiltered.forEach(x=>{hMap[x.subject]=(hMap[x.subject]||0)+x.seconds});
+
+ const bars=proj.subjects.map(s=>{
+  const info=qMap[s],acc=info&&info.n?Math.round(info.c/info.n*100):null;
+  const px=acc===null?4:Math.max(4,Math.round(acc/100*130));
+  const color=acc===null?'var(--line)':acc>=70?'var(--accent)':acc>=50?'var(--gold)':'var(--red)';
+  return `<div class="col"><div class="val">${acc===null?'—':acc+'%'}</div><div class="stick" style="height:${px}px;background:${color}"></div><div class="label name">${esc(s)}</div></div>`;
+ }).join('');
+ document.getElementById('perfPeriodChart').innerHTML=proj.subjects.length?`<div class="bars" style="height:190px">${bars}</div>`:'<div class="empty">Cadastre matérias para ver o desempenho.</div>';
+
+ document.getElementById('perfPeriodTable').innerHTML=proj.subjects.length?proj.subjects.map(s=>{
+  const info=qMap[s]||{n:0,c:0},acc=info.n?Math.round(info.c/info.n*100):null,hrs=hMap[s]||0;
+  return `<tr><td><b>${esc(s)}</b></td><td>${info.n}</td><td>${info.c}</td><td>${acc===null?'—':acc+'%'}</td><td>${hm(hrs)}</td></tr>`;
+ }).join(''):'<tr><td colspan="5" class="empty">Cadastre matérias para ver o desempenho.</td></tr>';
+}
+
+
+/* migração: gera revisões retroativas para conteúdos já concluídos que não tinham o ciclo, em todos os projetos */
+state.projects.forEach(proj=>{proj.contents.forEach(x=>{if(x.status==='concluido'&&!x.reviewsGenerated){generateReviews(proj,x);x.reviewsGenerated=true}})});
+
+render();
+(function(){
+ const s=document.getElementById('splash');
+ document.getElementById('splashTitle').textContent=state.userName?`Oi, ${state.userName}!`:'Painel de Pós-Edital';
+ document.getElementById('splashSub').textContent=motivationalForToday();
+ setTimeout(()=>{s.classList.add('hide')},1500);
+ setTimeout(()=>{s.remove()},2200);
+})();
+if(!state.projects.some(p=>p.templateKey==='contagem-auditor'||p.name===EDITAL_CONTAGEM_AUDITOR.name)){
+ createProjectFromTemplate(EDITAL_CONTAGEM_AUDITOR);
+}else{
+ state.projects.forEach(p=>{if(!p.templateKey&&p.name===EDITAL_CONTAGEM_AUDITOR.name)p.templateKey='contagem-auditor'});
+}
+</script>
+<script>
+/* =====================================================================
+   CICLO E METAS (Supabase)
+   Cole abaixo os dados do seu projeto (Supabase > Project Settings > API).
+   ===================================================================== */
+const SUPABASE_URL='https://guqjaajwlwgwwvoikyxf.supabase.co';
+const SUPABASE_ANON_KEY='sb_publishable_SiUKdKlVsrLIvnJUr-MuQA_1wZGYcbP';
+const CLOUD_BLOCK=60; // minutos por meta automática
+
+const C={open:false,sb:null,user:null,isAdmin:false,loading:false,authMode:'in',
+ courses:[],exams:[],examId:localStorage.getItem('cloud_exam'),tab:'hoje',date:null,
+ goals:[],pending:[],cycle:null,items:[],weights:[],topics:null,openSubj:{},
+ extras:null,profiles:[],allSubjects:[]};
+
+const $c=id=>document.getElementById(id);
+const cv=id=>{const e=$c(id);return e?e.value:''};
+const cOpts=(arr,sel,fv,fl,blank)=>(blank?`<option value="">${esc(blank)}</option>`:'')+arr.map(o=>`<option value="${esc(fv(o))}"${String(fv(o))===String(sel)?' selected':''}>${esc(fl(o))}</option>`).join('');
+const cExam=()=>C.exams.find(e=>e.id===C.examId)||null;
+const cUrl=u=>{u=(u||'').trim();return /^https?:\/\/\S+$/i.test(u)?u:''};
+const cByName=(a,b)=>String(a).localeCompare(String(b),'pt-BR');
+const KIND={teoria:'Teoria',questoes:'Questões',revisao:'Revisão',outro:'Outro'};
+const SRC={auto:'Ciclo',manual:'Manual',extra:'Extra'};
+
+let cloudMsgT;
+function cloudMsg(t,err){const el=$c('cloudMsg');el.textContent=t;el.className='cloud-msg'+(err?' err':'');el.style.display='block';clearTimeout(cloudMsgT);cloudMsgT=setTimeout(()=>{el.style.display='none'},err?6500:2500)}
+function cloudOk(r){if(r&&r.error){cloudMsg(r.error.message||String(r.error),true);return false}return true}
+function cloudConfigured(){return /^https:\/\/.+/.test(SUPABASE_URL)&&SUPABASE_ANON_KEY.length>40}
+
+/* ---- Navegação entre o app local e a nuvem ---- */
+const _renderLocal=render;
+render=function(){if(C.open)return;_renderLocal()};
+
+async function cloudOpen(){
+ C.open=true;
+ $c('hubView').style.display='none';$c('projectView').style.display='none';$c('cloudView').style.display='block';
+ $c('appTitle').textContent='Ciclo e metas';$c('todayDate').textContent=formatToday();
+ cloudRender();
+ await cloudInit();
+}
+function cloudClose(){if(!C.user){C.open=true;$c('hubView').style.display='none';$c('projectView').style.display='none';$c('cloudView').style.display='block';cloudRender();return}C.open=false;$c('cloudView').style.display='none';render()}
+
+async function cloudInit(){
+ if(C.sb||!window.supabase||!cloudConfigured()){cloudRender();return}
+ C.sb=window.supabase.createClient(SUPABASE_URL,SUPABASE_ANON_KEY);
+ C.sb.auth.onAuthStateChange((ev,session)=>{
+  const u=session?session.user:null;
+  const changed=(u?u.id:null)!==(C.user?C.user.id:null);
+  C.user=u;
+  if(changed)setTimeout(cloudAfterAuth,0); // não chamar o Supabase direto dentro deste callback
+ });
+ const {data}=await C.sb.auth.getSession();
+ C.user=data&&data.session?data.session.user:null;
+ if(C.user){await loadLocalStateForUser(C.user);await cloudLoadAll();C.open=false;$c('cloudView').style.display='none';render()}else cloudRender();
+}
+async function cloudAfterAuth(){
+ if(C.user){await loadLocalStateForUser(C.user);await cloudLoadAll();C.open=false;$c('cloudView').style.display='none';render()}
+ else{activeLocalUserId=null;stateStorageKey=KEY;state=JSON.parse(localStorage.getItem(KEY)||'null')||emptyLocalState();C.open=true;$c('hubView').style.display='none';$c('projectView').style.display='none';$c('cloudView').style.display='block';C.exams=[];C.examId=null;C.goals=[];C.pending=[];C.cycle=null;C.items=[];C.weights=[];C.topics=null;C.extras=null;C.isAdmin=false;cloudRender()}
+}
+
+/* ---- Login / cadastro ---- */
+function cloudAuthForm(){
+ const up=C.authMode==='up';
+ return `<div class="panel authbox"><h2>${up?'Criar conta':'Entrar'}</h2>
+ <label>E-mail<input id="auEmail" type="email" autocomplete="email" onkeydown="if(event.key==='Enter')cloudAuth()"></label>
+ <label>Senha${up?' (mínimo 6 caracteres)':''}<input id="auPass" type="password" autocomplete="${up?'new-password':'current-password'}" onkeydown="if(event.key==='Enter')cloudAuth()"></label>
+ <div class="row"><button class="primary" onclick="cloudAuth()">${up?'Criar conta':'Entrar'}</button>
+ <button class="secondary" onclick="C.authMode='${up?'in':'up'}';cloudRender()">${up?'Já tenho conta':'Criar conta nova'}</button></div></div>`;
+}
+async function cloudAuth(){
+ const email=cv('auEmail').trim(),password=cv('auPass');
+ if(!email||!password)return cloudMsg('Informe e-mail e senha.',true);
+ if(C.authMode==='up'){
+  const r=await C.sb.auth.signUp({email,password});
+  if(!cloudOk(r))return;
+  if(!r.data.session){C.authMode='in';cloudRender();cloudMsg('Conta criada. Confirme o e-mail que você recebeu e depois entre.')}
+ }else{
+  const r=await C.sb.auth.signInWithPassword({email,password});
+  if(!cloudOk(r))return;
+ }
+}
+async function cloudSignOut(){await C.sb.auth.signOut()}
+
+/* ---- Carregamento ---- */
+async function cloudLoadAll(){
+ C.loading=true;cloudRender();
+ const [co,ex,ad]=await Promise.all([
+  C.sb.from('courses').select('id,name').order('name'),
+  C.sb.from('exams').select('*').order('created_at'),
+  C.sb.from('admins').select('user_id').maybeSingle()]);
+ cloudOk(co);cloudOk(ex);
+ C.courses=co.data||[];C.exams=ex.data||[];C.isAdmin=!!ad.data;
+ if(!cExam())C.examId=C.exams[0]?C.exams[0].id:null;
+ if(C.examId)localStorage.setItem('cloud_exam',C.examId);
+ C.loading=false;
+ await cloudLoadExam();
+}
+async function cloudLoadExam(){
+ if(!C.examId){cloudRender();return}
+ if(!C.date)C.date=today();
+ C.topics=null;
+ const id=C.examId;
+ const [cy,ws]=await Promise.all([
+  C.sb.from('cycles').select('*').eq('exam_id',id).eq('status','ativo').maybeSingle(),
+  C.sb.from('exam_subjects').select('weight,subject_id,subjects(name)').eq('exam_id',id)]);
+ cloudOk(cy);cloudOk(ws);
+ C.cycle=cy.data||null;
+ C.weights=(ws.data||[]).slice().sort((a,b)=>cByName(a.subjects.name,b.subjects.name));
+ await cloudLoadItems();
+ await cloudLoadGoals(true);
+}
+async function cloudLoadItems(){
+ if(!C.cycle){C.items=[];return}
+ const it=await C.sb.from('cycle_items').select('*,subjects(name)').eq('cycle_id',C.cycle.id).order('position');
+ cloudOk(it);C.items=it.data||[];
+}
+async function cloudLoadGoals(auto){
+ const id=C.examId,d=C.date,sel='*,subjects(name),topics(name,total_questions)';
+ if(auto&&d===today()){
+  const k='cloud_gen_'+id+'_'+d;
+  if(!localStorage.getItem(k)){
+   const r=await C.sb.rpc('generate_daily_goals',{p_exam:id,p_date:d,p_block:CLOUD_BLOCK});
+   if(cloudOk(r))localStorage.setItem(k,'1');
+  }
+ }
+ const g=await C.sb.from('daily_goals').select(sel).eq('exam_id',id).eq('goal_date',d).order('created_at');
+ cloudOk(g);C.goals=g.data||[];
+ C.pending=[];
+ if(d===today()){
+  const p=await C.sb.from('daily_goals').select(sel).eq('exam_id',id).eq('done',false).lt('goal_date',d).order('goal_date');
+  cloudOk(p);C.pending=p.data||[];
+ }
+ cloudRender();
+}
+async function cloudLoadTopics(){
+ const r=await C.sb.from('exam_topics').select('topic_id,importance,status,topics(name,subject_id,tec_url,total_questions,position)').eq('exam_id',C.examId);
+ cloudOk(r);
+ C.topics=(r.data||[]).sort((a,b)=>a.topics.position-b.topics.position);
+}
+async function cloudLoadAdmin(){
+ const [ex,pr,su]=await Promise.all([
+  C.sb.from('extra_activities').select('*').order('created_at',{ascending:false}),
+  C.sb.from('profiles').select('user_id,email').order('email'),
+  C.sb.from('subjects').select('id,name,courses(name)')]);
+ cloudOk(ex);cloudOk(pr);cloudOk(su);
+ C.extras=ex.data||[];C.profiles=pr.data||[];
+ C.allSubjects=(su.data||[]).sort((a,b)=>cByName(a.name,b.name));
+}
+
+/* ---- Renderização ---- */
+function cloudRender(){
+ const el=$c('cloudBody');if(!el)return;
+ const top=`<div class="cloud-top"><div><h2 style="font-size:22px">Ciclo e metas diárias</h2><div class="label">Salvo na nuvem, acessível de qualquer aparelho.</div></div>
+ <div class="row"><button class="secondary small" onclick="cloudClose()">← Meus projetos</button>${C.user?`<span class="label">${esc(C.user.email)}</span><button class="secondary small" onclick="cloudSignOut()">Sair</button>`:''}</div></div>`;
+ el.innerHTML=top+cloudMain();
+}
+function cloudNote(t){return `<div class="panel section"><div class="label" style="font-size:14px;line-height:1.6">${t}</div></div>`}
+function cloudMain(){
+ if(!window.supabase)return cloudNote('Não consegui carregar a biblioteca do Supabase. Verifique a internet e recarregue a página.');
+ if(!cloudConfigured())return cloudNote('Falta ligar o banco: abra este arquivo HTML em um editor de texto, procure por <b>SUPABASE_URL</b> perto do final e cole a Project URL e a anon key do seu projeto Supabase.');
+ if(!C.user)return cloudAuthForm();
+ if(C.loading)return '<div class="empty">Carregando…</div>';
+ if(!C.exams.length)return cloudExamForm(true);
+ const tabs=[['hoje','Metas do dia'],['ciclo','Ciclo'],['pesos','Pesos e importância'],['concurso','Concurso']];
+ if(C.isAdmin)tabs.push(['admin','Extras (admin)']);
+ const sel=`<div class="row" style="margin-top:14px"><span class="label">Concurso</span><select onchange="cloudSelectExam(this.value)">${cOpts(C.exams,C.examId,e=>e.id,e=>e.name)}</select></div>`;
+ const nav=`<div class="cloud-tabs">${tabs.map(t=>`<button class="${C.tab===t[0]?'active':''}" onclick="cloudSetTab('${t[0]}')">${t[1]}</button>`).join('')}</div>`;
+ const body={hoje:cloudTabHoje,ciclo:cloudTabCiclo,pesos:cloudTabPesos,concurso:cloudTabConcurso,admin:cloudTabAdmin}[C.tab]||cloudTabHoje;
+ return sel+nav+body();
+}
+async function cloudSetTab(t){
+ C.tab=t;
+ if(t==='pesos'&&!C.topics){cloudRender();await cloudLoadTopics()}
+ if(t==='admin'&&!C.extras){cloudRender();await cloudLoadAdmin()}
+ cloudRender();
+}
+async function cloudSelectExam(id){C.examId=id;localStorage.setItem('cloud_exam',id);C.date=today();await cloudLoadExam()}
+
+/* ---- Concurso ---- */
+function cloudExamForm(first){
+ return `<div class="panel section"><h2>${first?'Crie seu primeiro concurso':'Novo concurso'}</h2>
+ ${first?'<div class="label" style="margin-bottom:14px">As matérias e aulas do curso escolhido entram automaticamente, com peso e importância 3 para você ajustar.</div>':''}
+ <div class="formgrid">
+ <label class="full">Nome do concurso<input id="ceName" style="width:100%" placeholder="Ex.: SEFAZ-ES - Auditor Fiscal"></label>
+ <label>Curso<select id="ceCourse" style="width:100%">${cOpts(C.courses,'',c=>c.id,c=>c.name)}</select></label>
+ <label>Banca (opcional)<input id="ceBanca" style="width:100%"></label>
+ <label>Data da prova (opcional)<input id="ceDate" type="date" style="width:100%"></label>
+ <label>Horas de estudo por dia<input id="ceHours" type="number" min="0.5" step="0.5" value="5" style="width:100%"></label>
+ </div>
+ <div class="row" style="justify-content:flex-end;margin-top:15px"><button class="primary" onclick="cloudCreateExam()">Criar concurso</button></div></div>`;
+}
+async function cloudCreateExam(){
+ const name=cv('ceName').trim();if(!name)return cloudMsg('Informe o nome do concurso.',true);
+ if(!cv('ceCourse'))return cloudMsg('Nenhum curso disponível. Rode o arquivo seed no Supabase.',true);
+ const mins=Math.round((parseFloat(cv('ceHours'))||5)*60);
+ const r=await C.sb.from('exams').insert({name,course_id:cv('ceCourse'),banca:cv('ceBanca').trim()||null,exam_date:cv('ceDate')||null,daily_minutes:mins}).select().single();
+ if(!cloudOk(r))return;
+ C.exams.push(r.data);C.examId=r.data.id;localStorage.setItem('cloud_exam',C.examId);
+ C.tab='pesos';C.date=today();
+ await cloudLoadExam();
+ await cloudLoadTopics();cloudRender();
+ cloudMsg('Concurso criado. Ajuste os pesos e crie o ciclo.');
+}
+function cloudTabConcurso(){
+ const rows=C.exams.map(e=>{
+  const c=C.courses.find(x=>x.id===e.course_id);
+  return `<div class="row" style="justify-content:space-between;padding:12px 0;border-top:1px solid var(--line)">
+  <div><b>${esc(e.name)}</b><div class="label">${esc(c?c.name:'')}${e.banca?' · '+esc(e.banca):''}${e.exam_date?' · prova em '+fmtDM(e.exam_date):''}</div></div>
+  <div class="row"><span class="label">Horas por dia</span><input type="number" min="0.5" step="0.5" value="${e.daily_minutes/60}" style="width:80px" onchange="cloudSetDaily('${e.id}',this.value)">
+  <button class="danger small" onclick="cloudDelExam('${e.id}')">Excluir</button></div></div>`}).join('');
+ return `<div class="panel"><h2>Meus concursos</h2>${rows}</div>${cloudExamForm(false)}`;
+}
+async function cloudSetDaily(id,h){
+ const m=Math.round((parseFloat(h)||0)*60);if(m<=0)return cloudMsg('Informe um valor maior que zero.',true);
+ const r=await C.sb.from('exams').update({daily_minutes:m}).eq('id',id);
+ if(cloudOk(r)){C.exams.find(e=>e.id===id).daily_minutes=m;cloudMsg('Salvo. Vale para as próximas metas geradas.')}
+}
+async function cloudDelExam(id){
+ const e=C.exams.find(x=>x.id===id);
+ if(!confirm(`Excluir o concurso "${e.name}" com ciclos, metas e pesos? Não dá para desfazer.`))return;
+ const r=await C.sb.from('exams').delete().eq('id',id);
+ if(!cloudOk(r))return;
+ C.exams=C.exams.filter(x=>x.id!==id);
+ if(C.examId===id){C.examId=C.exams[0]?C.exams[0].id:null;localStorage.setItem('cloud_exam',C.examId||'')}
+ await cloudLoadExam();
+}
+
+/* ---- Metas do dia ---- */
+function cloudGoalRow(g,i,pend){
+ const sub=g.subjects?g.subjects.name:'',top=g.topics?g.topics.name:'';
+ const title=g.title||top||sub||'Atividade';
+ const url=cUrl(g.tec_url);
+ const meta=[];
+ meta.push(`<span class="badge ${g.source==='extra'?'warn':g.source==='manual'?'':'done'}">${SRC[g.source]}</span>`);
+ meta.push(`<span>${KIND[g.kind]}</span>`);
+ if(sub&&title!==sub)meta.push(`<span>${esc(sub)}</span>`);
+ if(g.minutes)meta.push(`<span>${fmtMin(g.minutes)}</span>`);
+ if(g.topics&&g.topics.total_questions)meta.push(`<span>caderno: ${g.topics.total_questions} questões</span>`);
+ if(pend)meta.push(`<span class="badge red">de ${fmtDM(g.goal_date)}</span>`);
+ const q=g.question_target?`<div class="goal-meta goal-q"><span>Questões feitas</span><input type="number" min="0" value="${g.questions_done}" onchange="cloudQ('${g.id}','questions_done',this.value)"><span>de ${g.question_target}</span><span>· acertos</span><input type="number" min="0" value="${g.questions_correct}" onchange="cloudQ('${g.id}','questions_correct',this.value)"></div>`:'';
+ const acts=pend?
+  `<button class="secondary small" onclick="cloudMoveGoal('${g.id}')">Mover para hoje</button><button class="danger small" onclick="cloudDelGoal('${g.id}')">Remover</button>`:
+  `${url?`<a class="linkbtn" href="${esc(url)}" target="_blank" rel="noopener">Abrir no TEC</a>`:''}
+  <button class="secondary small" onclick="cloudEditLink('${g.id}')">${url?'Trocar link':'+ Link'}</button>
+  ${g.topic_id?`<button class="secondary small" title="Marca o assunto como concluído; ele sai das próximas metas" onclick="cloudTopicDone('${g.topic_id}')">Assunto concluído</button>`:''}
+  <button class="danger small" onclick="cloudDelGoal('${g.id}')">Remover</button>`;
+ return `<div class="goal${g.done?' done':''}${i===0?' first':''}"><input type="checkbox" ${g.done?'checked':''} onchange="cloudToggleDone('${g.id}',this.checked)">
+ <div><div class="goal-title">${esc(title)}</div><div class="goal-meta">${meta.join('')}</div>${q}</div><div class="goal-actions">${acts}</div></div>`;
+}
+function cloudTabHoje(){
+ const isToday=C.date===today(),G=C.goals;
+ const label=new Date(C.date+'T12:00:00').toLocaleDateString('pt-BR',{weekday:'long',day:'numeric',month:'long'});
+ const plan=G.reduce((a,g)=>a+(g.minutes||0),0),done=G.filter(g=>g.done).reduce((a,g)=>a+(g.minutes||0),0);
+ const qT=G.reduce((a,g)=>a+(g.question_target||0),0),qD=G.reduce((a,g)=>a+(g.question_target?g.questions_done:0),0);
+ const nDone=G.filter(g=>g.done).length;
+ const head=`<div class="row" style="justify-content:space-between"><div class="row"><button class="secondary small" onclick="cloudShiftDay(-1)">←</button><input type="date" value="${C.date}" onchange="cloudSetDate(this.value)"><button class="secondary small" onclick="cloudShiftDay(1)">→</button>${isToday?'':'<button class="secondary small" onclick="cloudSetDate(today())">Hoje</button>'}</div>
+ <div class="row"><button class="secondary" onclick="cloudGenerate()">Gerar / atualizar metas</button><button class="primary" onclick="cloudOpenAdd()">+ Atividade</button></div></div>
+ <div class="label" style="margin:10px 0 16px;text-transform:capitalize">${esc(label)}</div>`;
+ const stats=`<div class="grid"><div class="card"><div class="label">Metas concluídas</div><div class="metric">${nDone}/${G.length}</div></div><div class="card"><div class="label">Tempo</div><div class="metric">${fmtMin(done)} <span class="label">de ${fmtMin(plan)}</span></div></div><div class="card"><div class="label">Questões</div><div class="metric">${qD} <span class="label">de ${qT}</span></div></div></div>`;
+ const hint=!C.cycle?`<div class="panel section"><div class="label" style="font-size:14px">Você ainda não tem um ciclo ativo, então não há metas automáticas. Crie um na aba <b>Ciclo</b>. Atividades manuais e extras funcionam mesmo sem ciclo.</div></div>`:'';
+ const list=`<div class="panel section"><h2>Metas</h2>${G.length?G.map((g,i)=>cloudGoalRow(g,i,false)).join(''):'<div class="empty">Nenhuma meta neste dia. Use "Gerar / atualizar metas" ou "+ Atividade".</div>'}</div>`;
+ const pend=C.pending.length?`<div class="panel section"><h2>Pendentes de dias anteriores</h2><div class="label" style="margin-bottom:6px">Enquanto uma meta fica pendente, ela reserva tempo do ciclo e o assunto não volta sozinho. Traga para hoje ou remova.</div>${C.pending.map((g,i)=>cloudGoalRow(g,i,true)).join('')}</div>`:'';
+ return head+stats+hint+list+pend;
+}
+function cloudShiftDay(n){cloudSetDate(addDays(C.date,n))}
+async function cloudSetDate(d){if(!d)return;C.date=d;await cloudLoadGoals(false)}
+async function cloudGenerate(){
+ const r=await C.sb.rpc('generate_daily_goals',{p_exam:C.examId,p_date:C.date,p_block:CLOUD_BLOCK});
+ if(!cloudOk(r))return;
+ if(C.date===today())localStorage.setItem('cloud_gen_'+C.examId+'_'+C.date,'1');
+ await cloudLoadGoals(false);
+ cloudMsg(r.data&&r.data.length?`${r.data.length} meta(s) gerada(s).`:(C.cycle?'Nada novo a gerar: o tempo do dia já está preenchido.':'Sem ciclo ativo. Crie um na aba Ciclo.'));
+}
+function cloudFind(id){return C.goals.concat(C.pending).find(g=>g.id===id)}
+async function cloudToggleDone(id,checked){
+ const g=cloudFind(id);
+ const r=await C.sb.from('daily_goals').update({done:checked}).eq('id',id);
+ if(!cloudOk(r)){cloudRender();return}
+ g.done=checked;
+ if(checked&&g.topic_id)await C.sb.from('exam_topics').update({status:'andamento'}).eq('exam_id',C.examId).eq('topic_id',g.topic_id).eq('status','pendente');
+ await cloudLoadItems();C.topics=null;cloudRender();
+}
+async function cloudQ(id,field,val){
+ const g=cloudFind(id);let v=Math.max(0,parseInt(val)||0);
+ const patch={};
+ if(field==='questions_done'){patch.questions_done=v;if(g.questions_correct>v)patch.questions_correct=v;if(g.question_target&&v>=g.question_target&&!g.done)patch.done=true}
+ else{v=Math.min(v,g.questions_done);patch.questions_correct=v}
+ const r=await C.sb.from('daily_goals').update(patch).eq('id',id);
+ if(!cloudOk(r)){cloudRender();return}
+ const wasDone=g.done;Object.assign(g,patch);
+ if(patch.done&&!wasDone)await cloudLoadItems();
+ cloudRender();
+}
+async function cloudEditLink(id){
+ const g=cloudFind(id);
+ const u=prompt('Cole o link do TEC (deixe vazio para remover):',g.tec_url||'');
+ if(u===null)return;
+ if(u.trim()&&!cUrl(u))return cloudMsg('O link precisa começar com http:// ou https://',true);
+ const r=await C.sb.from('daily_goals').update({tec_url:u.trim()||null}).eq('id',id);
+ if(cloudOk(r)){g.tec_url=u.trim()||null;cloudRender()}
+}
+async function cloudDelGoal(id){
+ const r=await C.sb.from('daily_goals').delete().eq('id',id);
+ if(!cloudOk(r))return;
+ C.goals=C.goals.filter(g=>g.id!==id);C.pending=C.pending.filter(g=>g.id!==id);cloudRender();
+}
+async function cloudMoveGoal(id){
+ const r=await C.sb.from('daily_goals').update({goal_date:C.date}).eq('id',id);
+ if(cloudOk(r))await cloudLoadGoals(false);
+}
+async function cloudTopicDone(topicId){
+ const r=await C.sb.from('exam_topics').update({status:'concluido'}).eq('exam_id',C.examId).eq('topic_id',topicId);
+ if(cloudOk(r)){C.topics=null;cloudMsg('Assunto marcado como concluído.')}
+}
+
+/* ---- Atividade manual ---- */
+async function cloudOpenAdd(){
+ if(!C.topics)await cloudLoadTopics();
+ $c('caSubject').innerHTML=cOpts(C.weights,'',w=>w.subject_id,w=>w.subjects.name);
+ cloudFillTopicSelect();
+ ['caTitle','caUrl','caMin','caQ'].forEach(i=>$c(i).value='');$c('caKind').value='teoria';
+ $c('cloudAddModal').classList.add('open');
+}
+function cloudCloseAdd(){$c('cloudAddModal').classList.remove('open')}
+function cloudFillTopicSelect(){
+ const sid=cv('caSubject');
+ const list=(C.topics||[]).filter(t=>t.topics.subject_id===sid);
+ $c('caTopic').innerHTML='<option value="">(sem assunto específico)</option>'+list.map(t=>`<option value="${esc(t.topic_id)}">${esc(t.topics.name)}</option>`).join('');
+}
+function cloudPickTopic(){
+ const t=(C.topics||[]).find(x=>x.topic_id===cv('caTopic'));
+ if(t&&t.topics.tec_url&&!cv('caUrl'))$c('caUrl').value=t.topics.tec_url;
+}
+async function cloudSaveAdd(){
+ const mins=parseInt(cv('caMin'))||null,qs=parseInt(cv('caQ'))||null,url=cv('caUrl').trim();
+ if(!cv('caSubject'))return cloudMsg('Escolha a matéria.',true);
+ if(!mins&&!qs)return cloudMsg('Informe minutos, meta de questões ou os dois.',true);
+ if(url&&!cUrl(url))return cloudMsg('O link precisa começar com http:// ou https://',true);
+ const r=await C.sb.rpc('add_manual_goal',{p_exam:C.examId,p_date:C.date,p_subject:cv('caSubject'),p_topic:cv('caTopic')||null,p_title:cv('caTitle').trim()||null,p_tec_url:url||null,p_kind:cv('caKind'),p_minutes:mins,p_questions:qs});
+ if(!cloudOk(r))return;
+ cloudCloseAdd();await cloudLoadGoals(false);await cloudLoadItems();cloudRender();
+}
+
+/* ---- Ciclo ---- */
+function cloudTabCiclo(){
+ const ex=cExam();
+ let cur='<div class="empty">Nenhum ciclo ativo.</div>';
+ if(C.cycle){
+  const planned=C.items.reduce((a,i)=>a+i.minutes_planned,0),done=C.items.reduce((a,i)=>a+i.minutes_done,0);
+  const pct=planned?Math.min(100,Math.round(done/planned*100)):0;
+  cur=`<div class="label">Ciclo de ${fmtMin(C.cycle.total_minutes)}, criado em ${fmtDM(C.cycle.created_at.slice(0,10))}</div>
+  <div class="progress" style="margin:8px 0 4px"><div class="bar" style="width:${pct}%"></div></div><div class="label">${pct}% concluído · ${fmtMin(done)} de ${fmtMin(planned)}</div>
+  <div style="overflow:auto;margin-top:14px"><table><thead><tr><th>Matéria</th><th>Feito</th><th>Previsto</th><th style="width:30%"></th></tr></thead><tbody>${C.items.map(i=>{const p=i.minutes_planned?Math.min(100,Math.round(i.minutes_done/i.minutes_planned*100)):0;return `<tr><td>${esc(i.subjects.name)}</td><td>${fmtMin(i.minutes_done)}</td><td>${fmtMin(i.minutes_planned)}</td><td><div class="progress"><div class="bar" style="width:${p}%"></div></div></td></tr>`}).join('')}</tbody></table></div>`;
+ }
+ return `<div class="panel"><h2>Ciclo ativo</h2>${cur}</div>
+ <div class="panel section"><h2>${C.cycle?'Começar um novo ciclo':'Criar ciclo'}</h2>
+ <div class="label" style="margin-bottom:12px">O tempo total é dividido entre as matérias conforme o peso de cada uma (aba Pesos e importância). ${C.cycle?'Criar um novo ciclo encerra o atual.':''}</div>
+ <div class="row"><input id="cyHours" type="number" min="1" step="1" value="50" style="width:100px"><span class="label">horas no ciclo (${ex?`você estuda ${ex.daily_minutes/60}h por dia`:''})</span><button class="primary" onclick="cloudCreateCycle()">${C.cycle?'Encerrar atual e criar novo':'Criar ciclo'}</button></div></div>`;
+}
+async function cloudCreateCycle(){
+ const h=parseFloat(cv('cyHours'));if(!(h>0))return cloudMsg('Informe as horas do ciclo.',true);
+ if(C.cycle&&!confirm('Encerrar o ciclo atual e criar um novo?'))return;
+ const r=await C.sb.rpc('create_cycle',{p_exam:C.examId,p_total_minutes:Math.round(h*60)});
+ if(!cloudOk(r))return;
+ const cy=await C.sb.from('cycles').select('*').eq('id',r.data).single();
+ C.cycle=cy.data;await cloudLoadItems();
+ C.tab='hoje';
+ await cloudLoadGoals(true);
+ cloudMsg('Ciclo criado.');
+}
+
+/* ---- Pesos e importância ---- */
+function cloudTabPesos(){
+ if(!C.topics)return '<div class="empty">Carregando…</div>';
+ const imp=(sel,fn)=>`<select onchange="${fn}">${[1,2,3,4,5].map(n=>`<option value="${n}"${n===sel?' selected':''}>${n}</option>`).join('')}</select>`;
+ const intro=`<div class="label" style="margin-bottom:14px;line-height:1.6">Peso da matéria (1 a 5) define quanto tempo ela ganha no ciclo. Importância do assunto (1 a 5) define quais assuntos entram primeiro nas metas. Mudanças valem para o próximo ciclo e para as próximas metas geradas.</div>`;
+ return intro+C.weights.map(w=>{
+  const ts=C.topics.filter(t=>t.topics.subject_id===w.subject_id);
+  const open=!!C.openSubj[w.subject_id];
+  const done=ts.filter(t=>t.status==='concluido').length;
+  const body=open?`<div class="subj-body"><div class="row" style="padding:10px 0"><span class="label">Importância de todos os assuntos desta matéria</span><select onchange="cloudSetImpAll('${w.subject_id}',this.value);this.value=''"><option value="">escolher…</option>${[1,2,3,4,5].map(n=>`<option>${n}</option>`).join('')}</select></div>
+  ${ts.map(t=>{const u=cUrl(t.topics.tec_url);return `<div class="topic-row"><div>${esc(t.topics.name)} ${t.topics.total_questions?`<span class="label">· ${t.topics.total_questions} questões</span>`:''} ${u?`<a href="${esc(u)}" target="_blank" rel="noopener" class="label">abrir</a>`:''}</div>
+  ${imp(t.importance,`cloudSetImp('${t.topic_id}',this.value)`)}
+  <select onchange="cloudSetStatus('${t.topic_id}',this.value)"><option value="pendente"${t.status==='pendente'?' selected':''}>Pendente</option><option value="andamento"${t.status==='andamento'?' selected':''}>Em andamento</option><option value="concluido"${t.status==='concluido'?' selected':''}>Concluído</option></select></div>`}).join('')}</div>`:'';
+  return `<div class="subj-card"><div class="subj-head"><div><b>${esc(w.subjects.name)}</b><div class="label">${done} de ${ts.length} assuntos concluídos</div></div>
+  <div class="row"><span class="label">Peso</span>${imp(w.weight,`cloudSetWeight('${w.subject_id}',this.value)`)}<button class="secondary small" onclick="cloudToggleSubj('${w.subject_id}')">${open?'Ocultar assuntos':'Ver assuntos'}</button></div></div>${body}</div>`}).join('');
+}
+function cloudToggleSubj(id){C.openSubj[id]=!C.openSubj[id];cloudRender()}
+async function cloudSetWeight(sid,v){
+ const r=await C.sb.from('exam_subjects').update({weight:+v}).eq('exam_id',C.examId).eq('subject_id',sid);
+ if(cloudOk(r))C.weights.find(w=>w.subject_id===sid).weight=+v;
+}
+async function cloudSetImp(tid,v){
+ const r=await C.sb.from('exam_topics').update({importance:+v}).eq('exam_id',C.examId).eq('topic_id',tid);
+ if(cloudOk(r))C.topics.find(t=>t.topic_id===tid).importance=+v;
+}
+async function cloudSetImpAll(sid,v){
+ if(!v)return;
+ const ids=C.topics.filter(t=>t.topics.subject_id===sid).map(t=>t.topic_id);
+ const r=await C.sb.from('exam_topics').update({importance:+v}).eq('exam_id',C.examId).in('topic_id',ids);
+ if(cloudOk(r)){C.topics.forEach(t=>{if(t.topics.subject_id===sid)t.importance=+v});cloudRender()}
+}
+async function cloudSetStatus(tid,v){
+ const r=await C.sb.from('exam_topics').update({status:v}).eq('exam_id',C.examId).eq('topic_id',tid);
+ if(cloudOk(r)){C.topics.find(t=>t.topic_id===tid).status=v;cloudRender()}
+}
+
+/* ---- Extras (somente administrador) ---- */
+function cloudTabAdmin(){
+ if(!C.extras)return '<div class="empty">Carregando…</div>';
+ const who=id=>{if(!id)return 'Todos os usuários';const p=C.profiles.find(x=>x.user_id===id);return p?p.email:id};
+ const list=C.extras.map(x=>`<tr><td>${esc(x.title)}${cUrl(x.tec_url)?` <a class="label" href="${esc(x.tec_url)}" target="_blank" rel="noopener">link</a>`:''}</td><td>${esc(who(x.target_user_id))}</td><td>${x.question_target?x.question_target+' questões':''}${x.question_target&&x.minutes?' · ':''}${x.minutes?fmtMin(x.minutes):''}</td><td>${fmtDM(x.available_from)}${x.available_until?' a '+fmtDM(x.available_until):''}</td><td><button class="danger small" onclick="cloudDelExtra('${x.id}')">Excluir</button></td></tr>`).join('');
+ return `<div class="panel"><h2>Nova atividade extra</h2>
+ <div class="label" style="margin-bottom:14px;line-height:1.6">A extra aparece nas metas do usuário uma única vez, na primeira vez em que ele abrir o app dentro do período. Não consome o tempo diário do ciclo.</div>
+ <div class="formgrid">
+ <label class="full">Título<input id="axTitle" style="width:100%" placeholder="Ex.: Simulado de Receita Pública"></label>
+ <label>Para quem<select id="axUser" style="width:100%"><option value="">Todos os usuários</option>${C.profiles.map(p=>`<option value="${esc(p.user_id)}">${esc(p.email)}</option>`).join('')}</select></label>
+ <label>Matéria (opcional)<select id="axSubj" style="width:100%"><option value="">(nenhuma)</option>${C.allSubjects.map(s=>`<option value="${esc(s.id)}">${esc(s.name)}${s.courses?' · '+esc(s.courses.name):''}</option>`).join('')}</select></label>
+ <label class="full">Link do TEC<input id="axUrl" style="width:100%" placeholder="https://www.tecconcursos.com.br/s/..."></label>
+ <label>Tipo<select id="axKind" style="width:100%"><option value="questoes">Questões</option><option value="teoria">Teoria</option><option value="revisao">Revisão</option><option value="outro">Outro</option></select></label>
+ <label>Meta de questões<input id="axQ" type="number" min="1" style="width:100%"></label>
+ <label>Minutos (opcional)<input id="axMin" type="number" min="1" style="width:100%"></label>
+ <label>Disponível a partir de<input id="axFrom" type="date" value="${today()}" style="width:100%"></label>
+ <label>Até (opcional)<input id="axUntil" type="date" style="width:100%"></label>
+ </div><div class="row" style="justify-content:flex-end;margin-top:15px"><button class="primary" onclick="cloudAddExtra()">Criar extra</button></div></div>
+ <div class="panel section"><h2>Extras criadas</h2>${C.extras.length?`<div style="overflow:auto"><table><thead><tr><th>Título</th><th>Para</th><th>Meta</th><th>Período</th><th></th></tr></thead><tbody>${list}</tbody></table></div>`:'<div class="empty">Nenhuma extra criada ainda.</div>'}</div>`;
+}
+async function cloudAddExtra(){
+ const title=cv('axTitle').trim(),q=parseInt(cv('axQ'))||null,m=parseInt(cv('axMin'))||null,url=cv('axUrl').trim();
+ if(!title)return cloudMsg('Informe o título.',true);
+ if(!q&&!m)return cloudMsg('Informe meta de questões e/ou minutos.',true);
+ if(url&&!cUrl(url))return cloudMsg('O link precisa começar com http:// ou https://',true);
+ const r=await C.sb.from('extra_activities').insert({title,subject_id:cv('axSubj')||null,tec_url:url||null,kind:cv('axKind'),question_target:q,minutes:m,target_user_id:cv('axUser')||null,available_from:cv('axFrom')||today(),available_until:cv('axUntil')||null});
+ if(!cloudOk(r))return;
+ await cloudLoadAdmin();cloudRender();cloudMsg('Extra criada.');
+}
+async function cloudDelExtra(id){
+ if(!confirm('Excluir esta atividade extra? Metas já geradas para usuários continuam nas listas deles.'))return;
+ const r=await C.sb.from('extra_activities').delete().eq('id',id);
+ if(cloudOk(r)){C.extras=C.extras.filter(x=>x.id!==id);cloudRender()}
+}
+// A autenticação é a primeira tela da aplicação.
+cloudOpen();
+</script>
+</body>
+</html>
