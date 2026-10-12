@@ -171,6 +171,7 @@ a.linkbtn:hover{border-color:var(--ink)}
 <div class="greeting">
 <div><div class="label">Bem-vindo(a) de volta</div><h2>Oi, <input id="userNameInput" placeholder="seu nome" onchange="saveUserName(this.value)">!</h2></div>
 <div class="row">
+<button class="secondary" onclick="cloudChangePassword()">Alterar senha</button>
 <button class="secondary" onclick="cloudSignOut()">Sair da conta</button>
 
 <button class="primary" onclick="openProjectModal()">+ Novo projeto</button>
@@ -1110,7 +1111,7 @@ const SUPABASE_URL='https://guqjaajwlwgwwvoikyxf.supabase.co';
 const SUPABASE_ANON_KEY='sb_publishable_SiUKdKlVsrLIvnJUr-MuQA_1wZGYcbP';
 const CLOUD_BLOCK=60; // minutos por meta automática
 
-const C={open:false,sb:null,user:null,isAdmin:false,loading:false,authMode:'in',
+const C={open:false,sb:null,user:null,isAdmin:false,loading:false,authMode:'in',recovery:/type=recovery/.test(location.hash+location.search),
  courses:[],exams:[],examId:localStorage.getItem('cloud_exam'),tab:'hoje',date:null,
  goals:[],pending:[],cycle:null,items:[],weights:[],topics:null,openSubj:{},
  extras:null,profiles:[],allSubjects:[]};
@@ -1146,6 +1147,7 @@ async function cloudInit(){
  if(C.sb||!window.supabase||!cloudConfigured()){cloudRender();return}
  C.sb=window.supabase.createClient(SUPABASE_URL,SUPABASE_ANON_KEY);
  C.sb.auth.onAuthStateChange((ev,session)=>{
+  if(ev==='PASSWORD_RECOVERY'){C.recovery=true;setTimeout(cloudShowView,0)}
   const u=session?session.user:null;
   const changed=(u?u.id:null)!==(C.user?C.user.id:null);
   C.user=u;
@@ -1153,28 +1155,48 @@ async function cloudInit(){
  });
  const {data}=await C.sb.auth.getSession();
  C.user=data&&data.session?data.session.user:null;
- if(C.user){await loadLocalStateForUser(C.user);await cloudLoadAll();C.open=false;$c('cloudView').style.display='none';render()}else cloudRender();
+ if(/error_description=/.test(location.hash)){cloudMsg('Link inválido ou expirado. Peça um novo em "Esqueci a senha".',true);history.replaceState(null,'',location.pathname)}
+ if(C.user&&C.recovery){cloudRender()}
+ else if(C.user){await loadLocalStateForUser(C.user);await cloudLoadAll();C.open=false;$c('cloudView').style.display='none';render()}else cloudRender();
 }
 async function cloudAfterAuth(){
+ if(C.user&&C.recovery){cloudShowView();return}
  if(C.user){await loadLocalStateForUser(C.user);await cloudLoadAll();C.open=false;$c('cloudView').style.display='none';render()}
  else{activeLocalUserId=null;stateStorageKey=KEY;state=JSON.parse(localStorage.getItem(KEY)||'null')||emptyLocalState();C.open=true;$c('hubView').style.display='none';$c('projectView').style.display='none';$c('cloudView').style.display='block';C.exams=[];C.examId=null;C.goals=[];C.pending=[];C.cycle=null;C.items=[];C.weights=[];C.topics=null;C.extras=null;C.isAdmin=false;cloudRender()}
 }
 
-/* ---- Login / cadastro ---- */
+/* ---- Login / cadastro / recuperação de senha ---- */
+function cloudShowView(){C.open=true;$c('hubView').style.display='none';$c('projectView').style.display='none';$c('cloudView').style.display='block';cloudRender()}
+
 function cloudAuthForm(){
- const up=C.authMode==='up';
+ const m=C.authMode,up=m==='up',fg=m==='forgot';
+ if(fg)return `<div class="panel authbox"><h2>Recuperar senha</h2>
+ <div class="label" style="margin-bottom:12px">Enviaremos um link para você definir uma nova senha.</div>
+ <label>E-mail<input id="auEmail" type="email" autocomplete="email" onkeydown="if(event.key==='Enter')cloudAuth()"></label>
+ <div class="row"><button class="primary" onclick="cloudAuth()">Enviar link</button>
+ <button class="secondary" onclick="C.authMode='in';cloudRender()">Voltar</button></div></div>`;
  return `<div class="panel authbox"><h2>${up?'Criar conta':'Entrar'}</h2>
  <label>E-mail<input id="auEmail" type="email" autocomplete="email" onkeydown="if(event.key==='Enter')cloudAuth()"></label>
  <label>Senha${up?' (mínimo 6 caracteres)':''}<input id="auPass" type="password" autocomplete="${up?'new-password':'current-password'}" onkeydown="if(event.key==='Enter')cloudAuth()"></label>
  <div class="row"><button class="primary" onclick="cloudAuth()">${up?'Criar conta':'Entrar'}</button>
- <button class="secondary" onclick="C.authMode='${up?'in':'up'}';cloudRender()">${up?'Já tenho conta':'Criar conta nova'}</button></div></div>`;
+ <button class="secondary" onclick="C.authMode='${up?'in':'up'}';cloudRender()">${up?'Já tenho conta':'Criar conta nova'}</button></div>
+ ${up?'':`<div style="margin-top:14px"><button class="secondary small" onclick="C.authMode='forgot';cloudRender()">Esqueci a senha</button></div>`}</div>`;
 }
 async function cloudAuth(){
  const email=cv('auEmail').trim(),password=cv('auPass');
+ if(C.authMode==='forgot'){
+  if(!email)return cloudMsg('Informe o e-mail.',true);
+  const r=await C.sb.auth.resetPasswordForEmail(email,{redirectTo:location.href.split('#')[0].split('?')[0]});
+  if(!cloudOk(r))return;
+  C.authMode='in';cloudRender();
+  return cloudMsg('Se o e-mail estiver cadastrado, você receberá o link em instantes.');
+ }
  if(!email||!password)return cloudMsg('Informe e-mail e senha.',true);
  if(C.authMode==='up'){
   const r=await C.sb.auth.signUp({email,password});
   if(!cloudOk(r))return;
+  const u=r.data.user;
+  if(u&&u.identities&&u.identities.length===0){C.authMode='forgot';cloudRender();return cloudMsg('Este e-mail já existe no sistema. Use a recuperação de senha.',true)}
   if(!r.data.session){C.authMode='in';cloudRender();cloudMsg('Conta criada. Confirme o e-mail que você recebeu e depois entre.')}
  }else{
   const r=await C.sb.auth.signInWithPassword({email,password});
@@ -1182,6 +1204,27 @@ async function cloudAuth(){
  }
 }
 async function cloudSignOut(){await C.sb.auth.signOut()}
+
+/* ---- Alterar senha (link de recuperação ou usuário logado) ---- */
+function cloudRecoveryForm(){
+ return `<div class="panel authbox"><h2>Definir nova senha</h2>
+ <label>Nova senha (mínimo 6 caracteres)<input id="rcPass" type="password" autocomplete="new-password"></label>
+ <label>Repita a nova senha<input id="rcPass2" type="password" autocomplete="new-password" onkeydown="if(event.key==='Enter')cloudSetNewPassword()"></label>
+ <div class="row"><button class="primary" onclick="cloudSetNewPassword()">Salvar nova senha</button>
+ <button class="secondary" onclick="cloudCancelRecovery()">Cancelar</button></div></div>`;
+}
+function cloudChangePassword(){C.recovery=true;cloudShowView()}
+async function cloudSetNewPassword(){
+ const p=cv('rcPass'),p2=cv('rcPass2');
+ if(p.length<6)return cloudMsg('A senha precisa ter pelo menos 6 caracteres.',true);
+ if(p!==p2)return cloudMsg('As senhas não conferem.',true);
+ const r=await C.sb.auth.updateUser({password:p});
+ if(!cloudOk(r))return;
+ C.recovery=false;history.replaceState(null,'',location.pathname);
+ cloudMsg('Senha alterada com sucesso.');
+ await cloudAfterAuth();
+}
+async function cloudCancelRecovery(){C.recovery=false;history.replaceState(null,'',location.pathname);await cloudAfterAuth()}
 
 /* ---- Carregamento ---- */
 async function cloudLoadAll(){
@@ -1260,6 +1303,7 @@ function cloudNote(t){return `<div class="panel section"><div class="label" styl
 function cloudMain(){
  if(!window.supabase)return cloudNote('Não consegui carregar a biblioteca do Supabase. Verifique a internet e recarregue a página.');
  if(!cloudConfigured())return cloudNote('Falta ligar o banco: abra este arquivo HTML em um editor de texto, procure por <b>SUPABASE_URL</b> perto do final e cole a Project URL e a anon key do seu projeto Supabase.');
+ if(C.recovery&&C.user)return cloudRecoveryForm();
  if(!C.user)return cloudAuthForm();
  if(C.loading)return '<div class="empty">Carregando…</div>';
  if(!C.exams.length)return cloudExamForm(true);
