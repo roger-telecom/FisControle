@@ -838,40 +838,10 @@ function generateReviews(proj,x){
  const intervals=[{d:1,label:'Revisão 24h'},{d:7,label:'Revisão 7 dias'},{d:15,label:'Revisão 15 dias'},{d:30,label:'Revisão 30 dias'}];
  intervals.forEach(iv=>{const dt=new Date(base);dt.setDate(dt.getDate()+iv.d);proj.reviews.push({id:crypto.randomUUID(),contentId:x.id,subject:x.subject,name:x.name,label:iv.label,due:ymd(dt),done:false})});
 }
-/* Link da atividade principal -> revisão.
-   - Revisões de 24h/7/15/30 dias: usam o link do próprio conteúdo (tecUrl, vindo do catálogo).
-   - Revisões de questões erradas: usam o link do item do Planejamento que gerou o estudo (planId);
-     sem vínculo direto, procuram um item de Questões próximo da data com a mesma matéria/assunto. */
-function normLink(v){
- v=(v||'').trim();if(!v)return '';
- if(!/^https?:\/\//i.test(v))v='https://'+v;
- try{const u=new URL(v);return(u.protocol==='http:'||u.protocol==='https:')?u.href:''}catch(e){return ''}
-}
-function reviewLink(proj,r){
- const own=normLink(r.link);if(own)return own;
- if(r.kind!=='erradas'){
-  const c=proj.contents.find(x=>x.id===r.contentId);
-  return c?normLink(c.tecUrl):'';
- }
- if(r.planId){const px=proj.plan.find(x=>x.id===r.planId);if(px&&normLink(px.link))return normLink(px.link)}
- const base=r.studyDate||addDays(r.due,-6);
- const items=r.items&&r.items.length?r.items:[{subject:r.subject,name:''}];
- let best=null,bestScore=0,bestDist=1e9;
- proj.plan.forEach(px=>{
-  if(px.type!=='Questões'||!normLink(px.link))return;
-  const dist=Math.abs((new Date(px.date+'T12:00:00')-new Date(base+'T12:00:00'))/86400000);
-  if(dist>7)return;
-  const pc=planItemContents(px);
-  const score=items.filter(it=>pc.some(c=>c.subject===it.subject&&(c.name===it.name||!c.name||!it.name))).length;
-  if(!score)return;
-  if(score>bestScore||(score===bestScore&&dist<bestDist)){best=px;bestScore=score;bestDist=dist}
- });
- return best?normLink(best.link):'';
-}
 function renderReviews(proj){
  const t=today(),pending=proj.reviews.filter(r=>!r.done).sort((a,b)=>a.due<b.due?-1:1),overdue=pending.filter(r=>r.due<t).length;
  document.getElementById('reviewSummary').textContent=pending.length?`${pending.length} pendente(s)${overdue?` · ${overdue} atrasada(s)`:''}`:'';
- document.getElementById('reviewList').innerHTML=pending.length?pending.map(r=>`<div class="row" style="justify-content:space-between;padding:9px 0;border-bottom:1px solid var(--line)"><div><b>${esc(r.name)}</b><div class="label">${r.kind==='erradas'?esc(contentsText(r.items,r.subject)):esc(r.subject)} · ${r.kind==='erradas'?'Questões erradas':esc(r.label)} · ${r.due.split('-').reverse().join('/')}${reviewLink(proj,r)?` · <a href="${esc(reviewLink(proj,r))}" target="_blank" rel="noopener noreferrer">Abrir caderno</a>`:''}</div></div><div class="row"><span class="badge ${r.due<t?'red':''}">${r.due<t?'Atrasada':'Agendada'}</span><button class="secondary small" onclick="doneReview('${r.id}')">Concluir</button></div></div>`).join(''):'<div class="empty">Nenhuma revisão pendente. Conclua conteúdos para gerar o ciclo automaticamente.</div>';
+ document.getElementById('reviewList').innerHTML=pending.length?pending.map(r=>`<div class="row" style="justify-content:space-between;padding:9px 0;border-bottom:1px solid var(--line)"><div><b>${esc(r.name)}</b><div class="label">${esc(r.subject)} · ${esc(r.label)} · ${r.due.split('-').reverse().join('/')}</div></div><div class="row"><span class="badge ${r.due<t?'red':''}">${r.due<t?'Atrasada':'Agendada'}</span><button class="secondary small" onclick="doneReview('${r.id}')">Concluir</button></div></div>`).join(''):'<div class="empty">Nenhuma revisão pendente. Conclua conteúdos para gerar o ciclo automaticamente.</div>';
 }
 function doneReview(id){const proj=cp();if(!proj)return;const r=proj.reviews.find(x=>x.id===id);if(r)r.done=true;save()}
 
