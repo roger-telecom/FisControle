@@ -236,7 +236,7 @@ a.linkbtn:hover{border-color:var(--ink)}
 
 <section id="revisoes" class="tab">
 <div class="panel">
-<div class="row" style="justify-content:space-between"><div><h2>Ciclos de revisão</h2><div class="label">Gerados automaticamente quando um conteúdo é concluído (24h, 7, 15 e 30 dias — repetição espaçada).</div></div><span class="label" id="reviewSummary"></span></div>
+<div class="row" style="justify-content:space-between"><div><h2>Ciclos de revisão</h2><div class="label">Repetição espaçada. Conteúdo concluído gera revisões em 24h, 7, 15 e 30 dias (ou no ritmo do seu % de acerto, se houver 10+ questões). Cada bloco de questões registrado gera revisões conforme o % de acerto: abaixo de 50% → 1, 3, 7, 15 e 30 dias; 50–69% → 2, 7, 15 e 30; 70–84% → 4, 15 e 30; 85% ou mais → 7 e 30.</div></div><span class="label" id="reviewSummary"></span></div>
 <div id="reviewList" class="section"></div>
 </div>
 </section>
@@ -405,6 +405,17 @@ a.linkbtn:hover{border-color:var(--ink)}
 <label class="full">Observações<textarea id="eNotes" placeholder="Ex.: local de prova, edital nº, link do edital..."></textarea></label>
 </div>
 <div class="row" style="justify-content:flex-end;margin-top:15px"><button class="secondary" onclick="closeExamModal()">Cancelar</button><button class="primary" onclick="saveExamInfo()">Salvar</button></div>
+</div></div>
+
+<div class="modal" id="reviewModal"><div class="modalbox">
+<div class="row" style="justify-content:space-between"><h2>Editar revisão</h2><button class="secondary" onclick="closeReviewModal()">✕</button></div>
+<div id="rvInfo" class="label" style="margin-bottom:14px"></div>
+<div class="formgrid">
+<label>Data da revisão<input id="rvDate" type="date" style="width:100%"></label>
+<label class="full">Link do caderno (opcional — normalmente vem sozinho do Planejamento ou do assunto)<input id="rvLink" type="url" inputmode="url" style="width:100%" placeholder="Cole aqui o link (ex.: https://...)"></label>
+</div>
+<div id="rvHint" class="label" style="margin-top:10px"></div>
+<div class="row" style="justify-content:flex-end;margin-top:15px"><button class="secondary" onclick="closeReviewModal()">Cancelar</button><button class="primary" onclick="saveReviewEdit()">Salvar</button></div>
 </div></div>
 
 <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2.45.4/dist/umd/supabase.js"></script>
@@ -783,12 +794,10 @@ function addManualHours(){
  });
  let planRef=null;
  if(manualPlanId){const px=proj.plan.find(q=>q.id===manualPlanId);if(px){px.logged=true;planRef=px.id}manualPlanId=null;document.getElementById('manualFromPlan').style.display='none'}
- const errors=isQuestoes?qTotal-qCorrectTotal:0;
  let aviso='';
- if(errors>0){
-  const due=addDays(date,6);
-  proj.reviews.push({id:crypto.randomUUID(),kind:'erradas',contentId:null,subject:selected[0].subject,items:selected.map(s=>({subject:s.subject,name:s.name})),name:`Refazer questões erradas (${errors})`,label:'Questões erradas',planId:planRef,studyDate:date,due,done:false});
-  aviso=`Criei uma revisão para refazer ${errors} questão(ões) errada(s) em ${due.split('-').reverse().join('/')}.`;
+ if(isQuestoes){
+  const rv=generateQuestionReviews(proj,selected,date,qTotal,qCorrectTotal,planRef);
+  aviso=`${rv.acc}% de acerto (${rv.tier.name}): criei ${rv.tier.days.length} revisão(ões), a primeira em ${rv.first.split('-').reverse().join('/')}.`;
  }
  manualHoursH.value='';manualHoursM.value='';manualHoursS.value='';manualQCount.value='';manualQCorrect.value='';
  save();
@@ -833,17 +842,110 @@ function closeExamModal(){examModal.classList.remove('open')}
 function saveExamInfo(){const proj=cp();if(!proj)return;proj.examInfo={name:eName.value.trim()||proj.name,banca:eBanca.value.trim(),date:eDate.value,vacancies:eVacancies.value.trim(),notes:eNotes.value.trim()};if(eName.value.trim())proj.name=eName.value.trim();closeExamModal();save()}
 
 /* ===== Ciclos de revisão ===== */
+function normLink(v){
+ v=(v||'').trim();if(!v)return '';
+ if(!/^https?:\/\//i.test(v))v='https://'+v;
+ try{const u=new URL(v);return(u.protocol==='http:'||u.protocol==='https:')?u.href:''}catch(e){return ''}
+}
+/* Intervalos (dias após o estudo) conforme o % de acerto */
+const REVIEW_TIERS=[
+ {max:50,days:[1,3,7,15,30],name:'Reforço intensivo'},
+ {max:70,days:[2,7,15,30],name:'Reforço'},
+ {max:85,days:[4,15,30],name:'Consolidação'},
+ {max:101,days:[7,30],name:'Manutenção'}
+];
+function reviewTier(acc){return REVIEW_TIERS.find(t=>acc<t.max)}
+function dayLabel(d){return d===1?'Revisão 24h':`Revisão ${d} dias`}
+function itemsKey(items){return items.map(i=>i.subject+'|'+(i.name||'')).sort().join('||')}
+function contentAccuracy(proj,x){
+ const q=proj.questions.filter(z=>z.subject===x.subject&&z.topic===x.name);
+ const n=q.reduce((a,z)=>a+z.count,0),c=q.reduce((a,z)=>a+z.correct,0);
+ return n>=10?Math.round(c/n*100):null;
+}
 function generateReviews(proj,x){
  const base=new Date();base.setHours(0,0,0,0);
- const intervals=[{d:1,label:'Revisão 24h'},{d:7,label:'Revisão 7 dias'},{d:15,label:'Revisão 15 dias'},{d:30,label:'Revisão 30 dias'}];
- intervals.forEach(iv=>{const dt=new Date(base);dt.setDate(dt.getDate()+iv.d);proj.reviews.push({id:crypto.randomUUID(),contentId:x.id,subject:x.subject,name:x.name,label:iv.label,due:ymd(dt),done:false})});
+ const acc=contentAccuracy(proj,x);
+ const days=acc===null?[1,7,15,30]:reviewTier(acc).days;
+ days.forEach((d,i)=>{const dt=new Date(base);dt.setDate(dt.getDate()+d);proj.reviews.push({id:crypto.randomUUID(),contentId:x.id,subject:x.subject,name:x.name,label:dayLabel(d),due:ymd(dt),done:false,acc,seq:i+1,total:days.length})});
+}
+function generateQuestionReviews(proj,selected,date,qTotal,correct,planRef){
+ const acc=Math.round(correct/qTotal*100),errors=qTotal-correct,tier=reviewTier(acc);
+ const items=selected.map(s=>({subject:s.subject,name:s.name}));
+ const key=itemsKey(items);
+ // um novo resultado para os mesmos conteúdos substitui as revisões de questões ainda pendentes
+ proj.reviews=proj.reviews.filter(r=>!(!r.done&&(r.kind==='erradas'||r.kind==='questoes')&&r.items&&itemsKey(r.items)===key));
+ const link=blockLink(proj,{items,planId:planRef,studyDate:date,subject:items[0].subject,due:date});
+ tier.days.forEach((d,i)=>{
+  const first=i===0&&errors>0;
+  proj.reviews.push({id:crypto.randomUUID(),kind:first?'erradas':'questoes',contentId:null,subject:items[0].subject,items,
+   name:first?`Refazer questões erradas (${errors})`:`Revisar questões (${acc}% de acerto)`,label:dayLabel(d),planId:planRef,studyDate:date,autoLink:link,
+   acc,seq:i+1,total:tier.days.length,tier:tier.name,due:addDays(date,d),done:false});
+ });
+ return {acc,tier,errors,first:addDays(date,tier.days[0])};
+}
+function blockLink(proj,r){
+ if(r.planId){const px=proj.plan.find(x=>x.id===r.planId);if(px&&normLink(px.link))return normLink(px.link)}
+ const base=r.studyDate||r.due;
+ const items=r.items&&r.items.length?r.items:[{subject:r.subject,name:''}];
+ let best=null,bestScore=0,bestDist=1e9;
+ proj.plan.forEach(px=>{
+  if(px.type!=='Questões'||!normLink(px.link))return;
+  const dist=Math.abs((new Date(px.date+'T12:00:00')-new Date(base+'T12:00:00'))/86400000);
+  if(dist>7)return;
+  const pc=planItemContents(px);
+  const score=items.filter(it=>pc.some(c=>c.subject===it.subject&&(c.name===it.name||!c.name||!it.name))).length;
+  if(!score)return;
+  if(score>bestScore||(score===bestScore&&dist<bestDist)){best=px;bestScore=score;bestDist=dist}
+ });
+ if(best)return normLink(best.link);
+ for(const it of items){const c=proj.contents.find(z=>z.subject===it.subject&&z.name===it.name&&normLink(z.tecUrl));if(c)return normLink(c.tecUrl)}
+ return '';
+}
+function reviewLink(proj,r){
+ const own=normLink(r.link);if(own)return own;
+ const auto=normLink(r.autoLink);if(auto)return auto;
+ if(r.items&&r.items.length)return blockLink(proj,r);
+ const c=proj.contents.find(z=>z.id===r.contentId);
+ return c?normLink(c.tecUrl):'';
 }
 function renderReviews(proj){
  const t=today(),pending=proj.reviews.filter(r=>!r.done).sort((a,b)=>a.due<b.due?-1:1),overdue=pending.filter(r=>r.due<t).length;
  document.getElementById('reviewSummary').textContent=pending.length?`${pending.length} pendente(s)${overdue?` · ${overdue} atrasada(s)`:''}`:'';
- document.getElementById('reviewList').innerHTML=pending.length?pending.map(r=>`<div class="row" style="justify-content:space-between;padding:9px 0;border-bottom:1px solid var(--line)"><div><b>${esc(r.name)}</b><div class="label">${esc(r.subject)} · ${esc(r.label)} · ${r.due.split('-').reverse().join('/')}</div></div><div class="row"><span class="badge ${r.due<t?'red':''}">${r.due<t?'Atrasada':'Agendada'}</span><button class="secondary small" onclick="doneReview('${r.id}')">Concluir</button></div></div>`).join(''):'<div class="empty">Nenhuma revisão pendente. Conclua conteúdos para gerar o ciclo automaticamente.</div>';
+ document.getElementById('reviewList').innerHTML=pending.length?pending.map(r=>{
+  const link=reviewLink(proj,r),blk=r.items&&r.items.length;
+  return `<div class="row" style="justify-content:space-between;padding:9px 0;border-bottom:1px solid var(--line)"><div><b>${esc(r.name)}</b><div class="label">${esc(blk?contentsText(r.items,r.subject):r.subject)} · ${esc(r.label)}${r.seq?` (${r.seq}/${r.total})`:''} · ${r.due.split('-').reverse().join('/')}${r.acc!=null?` · ${r.acc}% de acerto`:''}${link?` · <a href="${esc(link)}" target="_blank" rel="noopener noreferrer">Abrir caderno</a>`:''}</div></div><div class="row"><span class="badge ${r.due<t?'red':''}">${r.due<t?'Atrasada':'Agendada'}</span><button class="secondary small" onclick="doneReview('${r.id}')">Concluir</button><button class="secondary small" onclick="openReviewEdit('${r.id}')">Editar</button><button class="danger small" onclick="deleteReview('${r.id}')">Excluir</button></div></div>`;
+ }).join(''):'<div class="empty">Nenhuma revisão pendente. Conclua conteúdos ou registre questões para gerar o ciclo automaticamente.</div>';
 }
-function doneReview(id){const proj=cp();if(!proj)return;const r=proj.reviews.find(x=>x.id===id);if(r)r.done=true;save()}
+function doneReview(id){
+ const proj=cp();if(!proj)return;const r=proj.reviews.find(x=>x.id===id);if(!r)return;
+ r.done=true;save();
+ if(r.items&&r.items.length)toast('Refez as questões? Registre o resultado em Estudos para recalcular as próximas revisões.');
+}
+function deleteReview(id){
+ const proj=cp();if(!proj)return;
+ if(!confirm('Excluir esta revisão?'))return;
+ proj.reviews=proj.reviews.filter(x=>x.id!==id);save();
+}
+let editReviewId=null;
+function openReviewEdit(id){
+ const proj=cp();if(!proj)return;const r=proj.reviews.find(x=>x.id===id);if(!r)return;
+ editReviewId=id;
+ const blk=r.items&&r.items.length;
+ document.getElementById('rvInfo').innerHTML=`<b>${esc(r.name)}</b><br>${esc(blk?contentsText(r.items,r.subject):r.subject)}`;
+ document.getElementById('rvDate').value=r.due;document.getElementById('rvLink').value=r.link||'';
+ const auto=reviewLink(proj,{...r,link:''});
+ document.getElementById('rvHint').innerHTML=auto?`Link em uso: <a href="${esc(auto)}" target="_blank" rel="noopener noreferrer">abrir caderno</a>. Preencher o campo acima substitui esse link; deixar vazio mantém o automático.`:'Nenhum link encontrado para esta revisão. Cole o link do caderno acima, ou coloque o link no item do Planejamento.';
+ document.getElementById('reviewModal').classList.add('open');
+}
+function closeReviewModal(){document.getElementById('reviewModal').classList.remove('open')}
+function saveReviewEdit(){
+ const proj=cp();if(!proj)return;const r=proj.reviews.find(x=>x.id===editReviewId);if(!r)return;
+ const date=document.getElementById('rvDate').value;if(!date)return alert('Escolha a data da revisão.');
+ let link='';const raw=document.getElementById('rvLink').value.trim();
+ if(raw){link=normLink(raw);if(!link)return alert('O link parece inválido. Cole o endereço completo (começando com http ou https).')}
+ r.due=date;r.link=link;
+ closeReviewModal();save();
+}
 
 /* ===== Provas discursivas ===== */
 function addDiscursiva(){
@@ -914,7 +1016,7 @@ function renderPlan(){
  const t=today();
  document.getElementById('planGrid').innerHTML=days.map((d,i)=>{
   const its=items.filter(x=>x.date===d),tot=its.reduce((a,x)=>a+(x.minutes||0),0);
-  const list=its.map(x=>`<div class="plan-item ${x.done?'done':''}"><input type="checkbox" ${x.done?'checked':''} onchange="planToggle('${x.id}')"><div style="flex:1;min-width:0"><div class="plan-title"><b>${esc((x.items&&x.items.length?x.items:[{subject:x.subject,topic:x.topic}]).map(i=>i.subject+(i.topic?' · '+i.topic:'')).join(' + '))}</b></div><div class="label">${esc(x.type)}${x.minutes?' · '+fmtMin(x.minutes):''}${x.note?' · '+esc(x.note):''}</div><div class="row" style="margin-top:4px">${x.done?(x.logged?'<span class="badge done">Estudo registrado</span>':`<button class="primary small" onclick="planRegister('${x.id}')">Registrar estudo</button>`):''}<button class="secondary small" onclick="openPlanModal(null,'${x.id}')">Editar</button><button class="danger small" onclick="planDelete('${x.id}')">Excluir</button></div></div></div>`).join('');
+  const list=its.map(x=>`<div class="plan-item ${x.done?'done':''}"><input type="checkbox" ${x.done?'checked':''} onchange="planToggle('${x.id}')"><div style="flex:1;min-width:0"><div class="plan-title"><b>${esc((x.items&&x.items.length?x.items:[{subject:x.subject,topic:x.topic}]).map(i=>i.subject+(i.topic?' · '+i.topic:'')).join(' + '))}</b></div><div class="label">${esc(x.type)}${x.minutes?' · '+fmtMin(x.minutes):''}${x.note?' · '+esc(x.note):''}${normLink(x.link)?` · <a href="${esc(normLink(x.link))}" target="_blank" rel="noopener noreferrer">Abrir caderno</a>`:''}</div><div class="row" style="margin-top:4px">${x.done?(x.logged?'<span class="badge done">Estudo registrado</span>':`<button class="primary small" onclick="planRegister('${x.id}')">Registrar estudo</button>`):''}<button class="secondary small" onclick="openPlanModal(null,'${x.id}')">Editar</button><button class="danger small" onclick="planDelete('${x.id}')">Excluir</button></div></div></div>`).join('');
   return `<div class="plan-day ${d===t?'today':''}"><div class="row" style="justify-content:space-between"><h3>${DOW[i]} ${fmtDM(d)}</h3><span class="label">${tot?fmtMin(tot):''}</span></div>${list||'<div class="label">Nada planejado.</div>'}<button class="secondary small" style="margin-top:4px" onclick="openPlanModal('${d}')">+ Planejar</button></div>`;
  }).join('');
 }
