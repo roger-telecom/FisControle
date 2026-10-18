@@ -132,6 +132,30 @@ tr:last-child td{border-bottom:0}
  th:nth-child(4),td:nth-child(4){display:none}
 }
 
+
+/* ===== Planejamento: layouts, meta semanal e arrastar-e-soltar ===== */
+.seg{display:inline-flex;gap:6px;flex-wrap:wrap}
+.plan-zone{border:1.5px dashed var(--line);border-radius:10px;padding:12px 14px;background:var(--surface);margin-bottom:14px}
+.plan-listday{border:1px solid var(--line);border-radius:10px;padding:14px;background:var(--surface);margin-bottom:12px}
+.plan-listday.today{border-color:var(--accent);box-shadow:0 0 0 1px var(--accent)}
+.plan-listday h3{margin:0;font-size:14px;font-family:Fraunces,Georgia,serif}
+.plan-row{display:flex;gap:10px;align-items:flex-start;padding:10px 0;border-top:1px solid var(--line)}
+.plan-row input[type=checkbox]{width:auto;padding:0;margin-top:4px}
+.plan-row.done .plan-title{text-decoration:line-through;color:var(--ink-soft)}
+.plan-rowmain{flex:1;min-width:0}
+.plan-rowact{display:flex;gap:6px;flex-wrap:wrap;align-items:center;justify-content:flex-end}
+.plan-row select{padding:5px 8px;font-size:12px}
+.grip{color:var(--ink-soft);cursor:grab;user-select:none;line-height:1.6}
+.plan-chips{display:grid;grid-template-columns:repeat(auto-fit,minmax(112px,1fr));gap:8px;margin:14px 0}
+.plan-chip{border:1px solid var(--line);border-radius:8px;padding:8px 10px;background:var(--surface);display:flex;flex-direction:column;gap:2px;font-size:13px}
+.plan-chip.today{border-color:var(--accent)}
+.plan-weeklist{border:1px solid var(--line);border-radius:10px;padding:4px 14px;min-height:56px}
+.plan-item[draggable=true],.plan-row[draggable=true]{cursor:grab}
+.dragging{opacity:.4}
+.drop-over{outline:2px dashed var(--accent);outline-offset:-2px;background:var(--accent-soft)}
+.drop-before{box-shadow:0 -3px 0 0 var(--accent)}
+.drop-after{box-shadow:0 3px 0 0 var(--accent)}
+
 /* ===== Ciclo e metas (nuvem) ===== */
 .cloud-wrap{max-width:1040px;margin:0 auto;padding:30px 20px 70px}
 .cloud-top{display:flex;justify-content:space-between;align-items:center;gap:12px;flex-wrap:wrap;margin-bottom:6px}
@@ -259,13 +283,17 @@ a.linkbtn:hover{border-color:var(--ink)}
 <button class="secondary small" onclick="planShiftWeek(1)">Próxima →</button>
 </div>
 </div>
+<div class="row section" id="planViewSeg"></div>
 <div class="grid section" id="planSummary"></div>
 <div class="row section">
 <button class="secondary small" onclick="planCopyPrevWeek()">Copiar semana anterior</button>
 <button class="danger small" onclick="planClearWeek()">Limpar semana</button>
 </div>
 </div>
+<div id="planZone" class="section"></div>
 <div class="plan-grid section" id="planGrid"></div>
+<div id="planList" class="section" style="display:none"></div>
+<div id="planWeek" class="section" style="display:none"></div>
 </section>
 
 <section id="lancamentos" class="tab">
@@ -359,7 +387,7 @@ a.linkbtn:hover{border-color:var(--ink)}
 <div class="modal" id="planModal"><div class="modalbox">
 <div class="row" style="justify-content:space-between"><h2 id="planModalTitle">Planejar estudo</h2><button class="secondary" onclick="closePlanModal()">✕</button></div>
 <div class="formgrid">
-<label>Dia<input id="pnDate" type="date" style="width:100%"></label>
+<label>Dia (vazio = só na meta da semana)<input id="pnDate" type="date" style="width:100%"></label>
 <label>Tipo<select id="pnType" style="width:100%"><option>Teoria</option><option>Questões</option><option>Flashcard</option><option>PDF / Resumo</option><option>Videoaula</option><option>Revisão</option><option>Simulado</option><option>Lei seca / Jurisprudência</option><option>Redação / Discursiva</option><option>Outro</option></select></label>
 <label class="full">Curso<select id="pnCourse" style="width:100%" onchange="planCourseChanged()"></select></label>
 <div class="full"><div id="pnContentRows"></div><button type="button" class="secondary small" onclick="planAddContentRow()" style="margin-top:8px">+ Adicionar outra matéria e assunto</button></div>
@@ -418,6 +446,12 @@ a.linkbtn:hover{border-color:var(--ink)}
 <div class="row" style="justify-content:flex-end;margin-top:15px"><button class="secondary" onclick="closeReviewModal()">Cancelar</button><button class="primary" onclick="saveReviewEdit()">Salvar</button></div>
 </div></div>
 
+<div class="modal" id="planAddModal"><div class="modalbox">
+<div class="row" style="justify-content:space-between"><h2 id="paTitle">Adicionar</h2><button class="secondary" onclick="closePlanAdd()">✕</button></div>
+<div class="seg" id="paChoices" style="margin-bottom:14px"></div>
+<div id="paBody"></div>
+</div></div>
+
 <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2.45.4/dist/umd/supabase.js"></script>
 <script>
 const KEY='estudos_hub_v1';
@@ -445,6 +479,7 @@ function normalize(p){
  p.questions=p.questions||[];p.discursivas=p.discursivas||[];p.reviews=p.reviews||[];p.plan=p.plan||[];
  p.examInfo=p.examInfo||{name:p.name||'',banca:'',date:'',vacancies:'',notes:''};
  p.goalDay=p.goalDay??5;p.goalWeek=p.goalWeek??30;
+ p.plan.forEach(x=>{if(x.date&&!x.week)x.week=mondayOf(x.date)});
  return p;
 }
 state.projects=state.projects.map(normalize);
@@ -654,7 +689,7 @@ function renderContents(){
 function renderPlanPending(proj){
  const pend=proj.plan.filter(x=>x.done&&!x.logged).sort((a,b)=>a.date<b.date?1:-1);
  document.getElementById('planPendingPanel').style.display=pend.length?'':'none';
- document.getElementById('planPending').innerHTML=pend.map(x=>`<div class="row" style="justify-content:space-between;padding:9px 0;border-bottom:1px solid var(--line)"><div><div class="plan-title">${planTitleHtml(x)}</div><div class="label">${fmtDM(x.date)} · ${esc(x.type)}${x.minutes?' · '+fmtMin(x.minutes):''}</div></div><div class="row"><button class="primary small" onclick="planRegister('${x.id}')">Registrar estudo</button><button class="secondary small" onclick="planDismiss('${x.id}')">Dispensar</button></div></div>`).join('');
+ document.getElementById('planPending').innerHTML=pend.map(x=>`<div class="row" style="justify-content:space-between;padding:9px 0;border-bottom:1px solid var(--line)"><div><div class="plan-title">${planTitleHtml(x)}</div><div class="label">${x.date?fmtDM(x.date):'sem dia'} · ${esc(x.type)}${x.minutes?' · '+fmtMin(x.minutes):''}</div></div><div class="row"><button class="primary small" onclick="planRegister('${x.id}')">Registrar estudo</button><button class="secondary small" onclick="planDismiss('${x.id}')">Dispensar</button></div></div>`).join('');
 }
 
 function planRegister(id){
@@ -683,7 +718,7 @@ function planUnlink(){manualPlanId=null;document.getElementById('manualFromPlan'
 
 function planDismiss(id){const proj=cp();if(!proj)return;const x=proj.plan.find(p=>p.id===id);if(x){x.logged=true;save()}}
 
-function planItemContents(x){return x.contents&&x.contents.length?x.contents:[{subject:x.subject,name:x.topic||''}]}
+function planItemContents(x){if(x.contents&&x.contents.length)return x.contents;if(x.items&&x.items.length)return x.items.map(i=>({subject:i.subject,name:i.topic||''}));return [{subject:x.subject,name:x.topic||''}]}
 
 function planTitleHtml(x){
  const groups=[],idx={};
@@ -889,7 +924,7 @@ function blockLink(proj,r){
  const items=r.items&&r.items.length?r.items:[{subject:r.subject,name:''}];
  let best=null,bestScore=0,bestDist=1e9;
  proj.plan.forEach(px=>{
-  if(px.type!=='Questões'||!normLink(px.link))return;
+  if(px.type!=='Questões'||!px.date||!normLink(px.link))return;
   const dist=Math.abs((new Date(px.date+'T12:00:00')-new Date(base+'T12:00:00'))/86400000);
   if(dist>7)return;
   const pc=planItemContents(px);
@@ -1004,21 +1039,167 @@ function fmtMin(min){const h=Math.floor(min/60),m=min%60;return h?(m?`${h}h ${St
 function ensurePlanWeek(){if(!planWeekStart)planWeekStart=mondayOf(today())}
 function planShiftWeek(n){ensurePlanWeek();planWeekStart=addDays(planWeekStart,7*n);renderPlan()}
 function planThisWeek(){planWeekStart=mondayOf(today());renderPlan()}
+let planView=localStorage.getItem('plan_view')||'cards';
+let planDragId=null,planAddDate='',planAddMode='',planExtrasCache=null;
+function planSetView(v){planView=v;localStorage.setItem('plan_view',v);renderPlan()}
+/* Itens da semana: os que têm dia dentro da semana + os "sem dia" ligados a essa semana (meta semanal) */
+function planWeekItems(proj,start){const end=addDays(start,6);return proj.plan.filter(x=>x.date?(x.date>=start&&x.date<=end):x.week===start)}
+/* Itens de um "contêiner": 'keep'/'week' = semana toda, '' = sem dia, AAAA-MM-DD = um dia (na ordem do array) */
+function planCtxItems(proj,key){
+ if(key==='keep'||key==='week')return planWeekItems(proj,planWeekStart);
+ if(key==='')return proj.plan.filter(x=>!x.date&&x.week===planWeekStart);
+ return proj.plan.filter(x=>x.date===key);
+}
+function planTitleText(x){return (x.items&&x.items.length?x.items:[{subject:x.subject,topic:x.topic}]).map(i=>i.subject+(i.topic?' · '+i.topic:'')).join(' + ')}
+function planMetaHtml(x){return `${esc(x.type)}${x.minutes?' · '+fmtMin(x.minutes):''}${x.note?' · '+esc(x.note):''}${normLink(x.link)?` · <a href="${esc(normLink(x.link))}" target="_blank" rel="noopener noreferrer">Abrir caderno</a>`:''}${x.extra?' · <span class="badge warn">Extra</span>':''}`}
+function planCheck(x){return x.date?`<input type="checkbox" ${x.done?'checked':''} onchange="planToggle('${x.id}')">`:`<input type="checkbox" disabled title="Defina um dia para poder concluir">`}
+function planRegBtn(x){return x.done?(x.logged?'<span class="badge done">Estudo registrado</span>':`<button class="primary small" onclick="planRegister('${x.id}')">Registrar estudo</button>`):''}
+function planDragAttrs(x,key){return `draggable="true" ondragstart="planDragStart(event,'${x.id}')" ondragend="planDragEnd()" ondragover="planItemOver(event)" ondragleave="planItemLeave(event)" ondrop="planItemDrop(event,'${x.id}','${key}')"`}
+function planDropAttrs(key){return `ondragover="planContOver(event)" ondragleave="planContLeave(event)" ondrop="planContDrop(event,'${key}')"`}
+/* Item no layout de cards (mesmo visual de antes) */
+function planCardItem(x,key){
+ return `<div class="plan-item ${x.done?'done':''}" ${planDragAttrs(x,key)}>${planCheck(x)}<div style="flex:1;min-width:0"><div class="plan-title"><b>${esc(planTitleText(x))}</b></div><div class="label">${planMetaHtml(x)}</div><div class="row" style="margin-top:4px">${planRegBtn(x)}<button class="secondary small" onclick="openPlanModal(null,'${x.id}')">Editar</button><button class="danger small" onclick="planDelete('${x.id}')">Excluir</button></div></div></div>`;
+}
+function planDaySelect(x){
+ const days=[0,1,2,3,4,5,6].map(i=>addDays(planWeekStart,i));
+ return `<select onchange="planAssign('${x.id}',this.value)" title="Dia da atividade"><option value="">Sem dia</option>${days.map((d,i)=>`<option value="${d}"${x.date===d?' selected':''}>${DOW[i]} ${fmtDM(d)}</option>`).join('')}</select>`;
+}
+/* Item em linha (layouts Lista e Meta semanal). opts.day = mostra seletor de dia; opts.step = escopo das setas ▲▼ */
+function planRowItem(x,key,opts){
+ opts=opts||{};
+ return `<div class="plan-row ${x.done?'done':''}" ${planDragAttrs(x,key)}><span class="grip" title="Arraste para mover">⋮⋮</span>${planCheck(x)}<div class="plan-rowmain"><div class="plan-title"><b>${esc(planTitleText(x))}</b></div><div class="label">${planMetaHtml(x)}</div></div><div class="plan-rowact">${opts.day?planDaySelect(x):''}${planRegBtn(x)}${opts.step!==undefined?`<button class="secondary small" title="Subir" onclick="planStep('${x.id}',-1,'${opts.step}')">▲</button><button class="secondary small" title="Descer" onclick="planStep('${x.id}',1,'${opts.step}')">▼</button>`:''}<button class="secondary small" onclick="openPlanModal(null,'${x.id}')">Editar</button><button class="danger small" onclick="planDelete('${x.id}')">Excluir</button></div></div>`;
+}
 function renderPlan(){
  const proj=cp();if(!proj)return;
  ensurePlanWeek();
  const start=planWeekStart,days=[0,1,2,3,4,5,6].map(i=>addDays(start,i)),end=days[6];
  document.getElementById('planWeekLabel').textContent=`Semana de ${fmtDM(start)} a ${fmtDM(end)}`+(start===mondayOf(today())?' · esta semana':'');
- const items=proj.plan.filter(x=>x.date>=start&&x.date<=end);
+ const items=planWeekItems(proj,start);
  const plannedMin=items.reduce((a,x)=>a+(x.minutes||0),0),done=items.filter(x=>x.done).length;
  const studiedSec=proj.sessions.filter(x=>x.date>=start&&x.date<=end).reduce((a,x)=>a+x.seconds,0);
  document.getElementById('planSummary').innerHTML=`<div class="card"><div class="label">Tempo previsto</div><div class="metric">${plannedMin?fmtMin(plannedMin):'—'}</div></div><div class="card"><div class="label">Itens concluídos</div><div class="metric">${done}/${items.length}</div></div><div class="card"><div class="label">Estudado de fato</div><div class="metric">${hm(studiedSec)}</div></div><div class="card"><div class="label">Meta semanal</div><div class="metric">${proj.goalWeek}h</div></div>`;
- const t=today();
- document.getElementById('planGrid').innerHTML=days.map((d,i)=>{
-  const its=items.filter(x=>x.date===d),tot=its.reduce((a,x)=>a+(x.minutes||0),0);
-  const list=its.map(x=>`<div class="plan-item ${x.done?'done':''}"><input type="checkbox" ${x.done?'checked':''} onchange="planToggle('${x.id}')"><div style="flex:1;min-width:0"><div class="plan-title"><b>${esc((x.items&&x.items.length?x.items:[{subject:x.subject,topic:x.topic}]).map(i=>i.subject+(i.topic?' · '+i.topic:'')).join(' + '))}</b></div><div class="label">${esc(x.type)}${x.minutes?' · '+fmtMin(x.minutes):''}${x.note?' · '+esc(x.note):''}${normLink(x.link)?` · <a href="${esc(normLink(x.link))}" target="_blank" rel="noopener noreferrer">Abrir caderno</a>`:''}</div><div class="row" style="margin-top:4px">${x.done?(x.logged?'<span class="badge done">Estudo registrado</span>':`<button class="primary small" onclick="planRegister('${x.id}')">Registrar estudo</button>`):''}<button class="secondary small" onclick="openPlanModal(null,'${x.id}')">Editar</button><button class="danger small" onclick="planDelete('${x.id}')">Excluir</button></div></div></div>`).join('');
-  return `<div class="plan-day ${d===t?'today':''}"><div class="row" style="justify-content:space-between"><h3>${DOW[i]} ${fmtDM(d)}</h3><span class="label">${tot?fmtMin(tot):''}</span></div>${list||'<div class="label">Nada planejado.</div>'}<button class="secondary small" style="margin-top:4px" onclick="openPlanModal('${d}')">+ Planejar</button></div>`;
- }).join('');
+ const seg=[['cards','Cards'],['list','Lista'],['week','Meta semanal']];
+ document.getElementById('planViewSeg').innerHTML=`<div class="seg">${seg.map(v=>`<button class="${planView===v[0]?'primary':'secondary'} small" onclick="planSetView('${v[0]}')">${v[1]}</button>`).join('')}</div>`;
+ const t=today(),unsched=items.filter(x=>!x.date);
+ const grid=document.getElementById('planGrid'),list=document.getElementById('planList'),wk=document.getElementById('planWeek'),zone=document.getElementById('planZone');
+ grid.style.display=planView==='cards'?'':'none';
+ list.style.display=planView==='list'?'':'none';
+ wk.style.display=planView==='week'?'':'none';
+ zone.style.display=planView==='week'?'none':'';
+ if(planView!=='week'){
+  zone.innerHTML=`<div class="plan-zone" ${planDropAttrs('')}><div class="row" style="justify-content:space-between"><div><b>Meta da semana sem dia definido (${unsched.length})</b><div class="label">Arraste uma atividade para um dia abaixo. Solte aqui para tirá-la do dia e deixá-la só na meta semanal.</div></div><button class="secondary small" onclick="planAddOpen('')">+ Atividade da semana</button></div>${unsched.map(x=>planRowItem(x,'',{step:''})).join('')}</div>`;
+ }
+ if(planView==='cards'){
+  grid.innerHTML=days.map((d,i)=>{
+   const its=items.filter(x=>x.date===d),tot=its.reduce((a,x)=>a+(x.minutes||0),0);
+   return `<div class="plan-day ${d===t?'today':''}" ${planDropAttrs(d)}><div class="row" style="justify-content:space-between"><h3>${DOW[i]} ${fmtDM(d)}</h3><span class="label">${tot?fmtMin(tot):''}</span></div>${its.map(x=>planCardItem(x,d)).join('')||'<div class="label">Nada planejado.</div>'}<button class="secondary small" style="margin-top:4px" onclick="planAddOpen('${d}')">+ Planejar</button></div>`;
+  }).join('');
+ }else if(planView==='list'){
+  list.innerHTML=days.map((d,i)=>{
+   const its=items.filter(x=>x.date===d),tot=its.reduce((a,x)=>a+(x.minutes||0),0),dn=its.filter(x=>x.done).length;
+   return `<div class="plan-listday ${d===t?'today':''}" ${planDropAttrs(d)}><div class="row" style="justify-content:space-between"><h3>${DOW[i]} ${fmtDM(d)}</h3><div class="row"><span class="label">${its.length?`${dn}/${its.length} feitos`:''}${tot?' · '+fmtMin(tot):''}</span><button class="secondary small" onclick="planAddOpen('${d}')">+ Planejar</button></div></div>${its.map(x=>planRowItem(x,d,{step:d})).join('')||'<div class="label" style="margin-top:6px">Nada planejado.</div>'}</div>`;
+  }).join('');
+ }else{
+  const goalMin=(proj.goalWeek||0)*60,pct=goalMin?Math.min(100,Math.round(plannedMin/goalMin*100)):0;
+  const chips=days.map((d,i)=>{const its=items.filter(x=>x.date===d),m=its.reduce((a,x)=>a+(x.minutes||0),0);return `<div class="plan-chip ${d===t?'today':''}" ${planDropAttrs(d)}><b>${DOW[i]} ${fmtDM(d)}</b><span class="label">${its.length} ativ.${m?' · '+fmtMin(m):''}</span></div>`}).join('')+`<div class="plan-chip" ${planDropAttrs('')}><b>Sem dia</b><span class="label">${unsched.length} ativ.</span></div>`;
+  wk.innerHTML=`<div class="panel"><div class="row" style="justify-content:space-between"><div><h2>Meta da semana</h2><div class="label">Monte a lista de atividades da semana e distribua pelos dias: arraste a atividade até um dia abaixo ou escolha o dia no seletor da linha. O que for colocado em um dia (inclusive extras do banco) também aparece aqui.</div></div><div class="row"><button class="primary small" onclick="planAddOpen('')">+ Atividade da semana</button><button class="secondary small" onclick="planAddOpen('');planAddSet('extra')">+ Extra do banco</button></div></div><div class="progress" style="margin-top:14px"><div class="bar" style="width:${pct}%"></div></div><div class="label" style="margin-top:6px">Planejado: ${fmtMin(plannedMin)} de ${proj.goalWeek}h de meta semanal (${pct}%) · ${done}/${items.length} concluídos</div><div class="plan-chips">${chips}</div><div class="plan-weeklist" ${planDropAttrs('keep')}>${items.map(x=>planRowItem(x,'keep',{day:true,step:'week'})).join('')||'<div class="label" style="padding:14px 0">Nenhuma atividade planejada para esta semana.</div>'}</div></div>`;
+ }
+}
+/* ---- Mover itens (arrastar e soltar, seletor de dia, setas) ---- */
+function planMoveItem(id,key,beforeId){
+ const proj=cp();if(!proj)return;
+ const i=proj.plan.findIndex(p=>p.id===id);if(i<0)return;
+ const it=proj.plan[i];
+ if(key!=='keep'&&key!=='week'){
+  if(!key&&it.logged){toast('Esta atividade já foi registrada como estudo e precisa ficar em um dia.');return}
+  it.date=key;it.week=key?mondayOf(key):planWeekStart;if(!key)it.done=false;
+ }
+ proj.plan.splice(i,1);
+ let at=proj.plan.length;
+ if(beforeId&&beforeId!==id){const j=proj.plan.findIndex(p=>p.id===beforeId);if(j>=0)at=j}
+ proj.plan.splice(at,0,it);
+ save();
+}
+function planAssign(id,date){
+ const proj=cp();if(!proj)return;const x=proj.plan.find(p=>p.id===id);if(!x)return;
+ if(!date&&x.logged){toast('Esta atividade já foi registrada como estudo e precisa ficar em um dia.');renderPlan();return}
+ x.date=date;x.week=date?mondayOf(date):planWeekStart;if(!date)x.done=false;save();
+}
+function planStep(id,dir,key){
+ const proj=cp();if(!proj)return;
+ const items=planCtxItems(proj,key),k=items.findIndex(x=>x.id===id),o=items[k+dir];
+ if(k<0||!o)return;
+ const a=proj.plan.indexOf(items[k]),b=proj.plan.indexOf(o);
+ [proj.plan[a],proj.plan[b]]=[proj.plan[b],proj.plan[a]];
+ save();
+}
+function planDragStart(ev,id){planDragId=id;ev.dataTransfer.effectAllowed='move';try{ev.dataTransfer.setData('text/plain',id)}catch(e){}ev.currentTarget.classList.add('dragging')}
+function planDragClear(){document.querySelectorAll('.drop-over,.drop-before,.drop-after').forEach(e=>e.classList.remove('drop-over','drop-before','drop-after'))}
+function planDragEnd(){planDragId=null;planDragClear();document.querySelectorAll('.dragging').forEach(e=>e.classList.remove('dragging'))}
+function planContOver(ev){if(!planDragId)return;ev.preventDefault();ev.dataTransfer.dropEffect='move';ev.currentTarget.classList.add('drop-over')}
+function planContLeave(ev){const el=ev.currentTarget;if(!el.contains(ev.relatedTarget))el.classList.remove('drop-over')}
+function planContDrop(ev,key){if(!planDragId)return;ev.preventDefault();const id=planDragId;planDragEnd();planMoveItem(id,key,null)}
+function planItemOver(ev){
+ if(!planDragId)return;ev.preventDefault();ev.stopPropagation();ev.dataTransfer.dropEffect='move';
+ const el=ev.currentTarget,r=el.getBoundingClientRect(),after=(ev.clientY-r.top)>r.height/2;
+ planDragClear();el.classList.add(after?'drop-after':'drop-before');
+}
+function planItemLeave(ev){const el=ev.currentTarget;if(!el.contains(ev.relatedTarget))el.classList.remove('drop-before','drop-after')}
+function planItemDrop(ev,targetId,key){
+ if(!planDragId)return;ev.preventDefault();ev.stopPropagation();
+ const id=planDragId,el=ev.currentTarget,r=el.getBoundingClientRect(),after=(ev.clientY-r.top)>r.height/2;
+ planDragEnd();
+ if(id===targetId)return;
+ const proj=cp();if(!proj)return;
+ let before=targetId;
+ if(after){const its=planCtxItems(proj,key).filter(x=>x.id!==id),k=its.findIndex(x=>x.id===targetId);before=its[k+1]?its[k+1].id:null}
+ planMoveItem(id,key,before);
+}
+/* ---- Pop-up "+ Planejar": nova atividade, da meta semanal ou extra do banco ---- */
+function planAddOpen(date){
+ planAddDate=date||'';planAddMode='';
+ document.getElementById('paTitle').textContent=planAddDate?`Adicionar ao dia ${fmtDM(planAddDate)}`:'Adicionar à meta da semana';
+ document.getElementById('planAddModal').classList.add('open');
+ planAddRender();
+}
+function closePlanAdd(){document.getElementById('planAddModal').classList.remove('open')}
+async function planAddSet(m){
+ if(m==='new'){closePlanAdd();return openPlanModal(planAddDate)}
+ planAddMode=m;
+ if(m==='extra'){document.getElementById('paBody').innerHTML='<div class="empty">Carregando…</div>';planExtrasCache=await planLoadExtras()}
+ planAddRender();
+}
+async function planLoadExtras(){
+ if(!C.sb||!C.user){cloudMsg('Entre na sua conta para ver as extras.',true);return []}
+ const start=planWeekStart,end=addDays(start,6);
+ const r=await C.sb.from('extra_activities').select('*,subjects(name),topics(name)').lte('available_from',end).order('available_from',{ascending:false});
+ if(!cloudOk(r))return [];
+ const me=C.user.id;
+ return (r.data||[]).filter(e=>(!e.target_user_id||e.target_user_id===me)&&(!e.available_until||e.available_until>=start));
+}
+function planAddRender(){
+ const proj=cp();if(!proj)return;
+ const btn=(m,l)=>`<button class="${planAddMode===m?'primary':'secondary'} small" onclick="planAddSet('${m}')">${l}</button>`;
+ document.getElementById('paChoices').innerHTML=btn('new','Nova atividade')+(planAddDate?btn('week','Da meta da semana'):'')+btn('extra','Extra do banco de dados');
+ const body=document.getElementById('paBody');
+ if(planAddMode==='week'){
+  const its=planCtxItems(proj,'');
+  body.innerHTML=its.length?its.map(x=>`<div class="plan-row"><div class="plan-rowmain"><div class="plan-title"><b>${esc(planTitleText(x))}</b></div><div class="label">${planMetaHtml(x)}</div></div><div class="plan-rowact"><button class="primary small" onclick="planAddPick('${x.id}')">Adicionar a este dia</button></div></div>`).join(''):'<div class="empty">Não há atividades sem dia na meta desta semana. Crie na aba Meta semanal ou escolha "Nova atividade".</div>';
+ }else if(planAddMode==='extra'){
+  const used=new Set(proj.plan.filter(x=>x.extraId).map(x=>x.extraId));
+  const ex=(planExtrasCache||[]).filter(e=>!used.has(e.id));
+  body.innerHTML=ex.length?ex.map(e=>`<div class="plan-row"><div class="plan-rowmain"><div class="plan-title"><b>${esc(e.title)}</b></div><div class="label">${esc(KIND[e.kind]||e.kind)}${e.subjects&&e.subjects.name?' · '+esc(e.subjects.name):''}${e.question_target?' · '+e.question_target+' questões':''}${e.minutes?' · '+fmtMin(e.minutes):''}${cUrl(e.tec_url)?` · <a href="${esc(e.tec_url)}" target="_blank" rel="noopener noreferrer">Abrir caderno</a>`:''}</div></div><div class="plan-rowact"><button class="primary small" onclick="planAddExtraPick('${e.id}')">Adicionar</button></div></div>`).join(''):'<div class="empty">Nenhuma extra disponível para esta semana (ou todas já foram adicionadas).</div>';
+ }else body.innerHTML='<div class="label">Escolha acima como adicionar. Tudo que entrar em um dia também aparece na meta da semana.</div>';
+}
+function planAddPick(id){planMoveItem(id,planAddDate,null);planAddRender()}
+function planAddExtraPick(eid){
+ const proj=cp();const e=(planExtrasCache||[]).find(z=>z.id===eid);if(!proj||!e)return;
+ const typeMap={questoes:'Questões',teoria:'Teoria',revisao:'Revisão',outro:'Outro'};
+ const sub=e.subjects&&e.subjects.name?e.subjects.name:'Extra';
+ proj.plan.push({id:crypto.randomUUID(),date:planAddDate,week:planAddDate?mondayOf(planAddDate):planWeekStart,courseId:null,course:'Extra',
+  items:[{subject:sub,topic:e.title,subjectId:e.subject_id||null,topicId:null}],subject:sub,topic:e.title,link:e.tec_url||'',
+  type:typeMap[e.kind]||'Outro',minutes:e.minutes||0,note:e.question_target?`Meta: ${e.question_target} questões`:'',done:false,extra:true,extraId:e.id});
+ save();planAddRender();
 }
 let PLAN_CATALOG={courses:[],subjects:[],topics:[]},planContentRows=[];
 async function planLoadCatalog(){
@@ -1071,7 +1252,7 @@ async function openPlanModal(date,id){
  const courseIds=[...new Set(PLAN_CATALOG.subjects.map(s=>s.course_id))];
  const available=PLAN_CATALOG.courses.filter(c=>courseIds.includes(c.id));
  document.getElementById('pnCourse').innerHTML=cOpts(available,x&&x.courseId?x.courseId:(proj.courseId|| (available[0]&&available[0].id)),c=>c.id,c=>c.name);
- document.getElementById('pnDate').value=x?x.date:(date||today());
+ document.getElementById('pnDate').value=x?x.date:(date===''?'':(date||today()));
  document.getElementById('pnType').value=x?x.type:'Teoria';
  const oldItems=x&&Array.isArray(x.items)&&x.items.length?x.items:[{subject:x&&x.subject||'',topic:x&&x.topic||''}];
  const course=document.getElementById('pnCourse').value;
@@ -1105,38 +1286,45 @@ function closePlanModal(){
 
 function planSave(){
  const proj=cp();if(!proj)return;
- const date=document.getElementById('pnDate').value;if(!date)return alert('Escolha o dia.');
+ const date=document.getElementById('pnDate').value;
+ const old=editPlanId?proj.plan.find(p=>p.id===editPlanId):null;
  const course=PLAN_CATALOG.courses.find(c=>c.id===document.getElementById('pnCourse').value);
- const items=planContentRows.map((r,i)=>{
+ let items=planContentRows.map((r,i)=>{
   const subj=PLAN_CATALOG.subjects.find(s=>s.id===document.getElementById('pnSubject_'+i)?.value);
   const topic=PLAN_CATALOG.topics.find(t=>t.id===document.getElementById('pnTopic_'+i)?.value);
   return subj?{subject:subj.name,topic:topic?topic.name:'',subjectId:subj.id,topicId:topic?topic.id:null}:null;
  }).filter(Boolean);
- if(!course)return alert('Escolha um curso.');if(!items.length)return alert('Escolha pelo menos uma matéria.');
+ // atividade extra: mantém o conteúdo original, só permite mudar dia, tempo, link e observação
+ if(!items.length&&old&&old.extra)items=old.items;
+ if(!course&&!(old&&old.extra))return alert('Escolha um curso.');
+ if(!items.length)return alert('Escolha pelo menos uma matéria.');
  const minutes=(+document.getElementById('pnH').value||0)*60+(+document.getElementById('pnM').value||0);
- const item={id:editPlanId||crypto.randomUUID(),date,courseId:course.id,course:course.name,items,subject:items[0].subject,topic:items[0].topic,link:document.getElementById('pnLink').value.trim(),type:document.getElementById('pnType').value,minutes,note:document.getElementById('pnNote').value.trim(),done:false};
+ const item={id:editPlanId||crypto.randomUUID(),date,week:date?mondayOf(date):planWeekStart,courseId:course?course.id:(old?old.courseId:null),course:course?course.name:(old?old.course:'Extra'),items,subject:items[0].subject,topic:items[0].topic,link:document.getElementById('pnLink').value.trim(),type:document.getElementById('pnType').value,minutes,note:document.getElementById('pnNote').value.trim(),done:false};
  if(item.link&&!/^https?:\/\//i.test(item.link))item.link='https://'+item.link;
  const i=proj.plan.findIndex(p=>p.id===item.id);
- if(i>=0){item.done=proj.plan[i].done;proj.plan[i]=item}else proj.plan.push(item);
- planWeekStart=mondayOf(item.date);closePlanModal();save();
+ if(i>=0){const o=proj.plan[i];item.done=date?o.done:false;item.logged=o.logged;if(o.extra){item.extra=o.extra;item.extraId=o.extraId}proj.plan[i]=item}else proj.plan.push(item);
+ if(item.date)planWeekStart=mondayOf(item.date);
+ closePlanModal();save();
 }
-function planToggle(id){const proj=cp();if(!proj)return;const x=proj.plan.find(p=>p.id===id);if(x){x.done=!x.done;save()}}
+function planToggle(id){const proj=cp();if(!proj)return;const x=proj.plan.find(p=>p.id===id);if(x&&x.date){x.done=!x.done;save()}}
 function planDelete(id){const proj=cp();if(!proj)return;if(!confirm('Excluir este item do planejamento?'))return;proj.plan=proj.plan.filter(p=>p.id!==id);save()}
 function planCopyPrevWeek(){
  const proj=cp();if(!proj)return;ensurePlanWeek();
- const ps=addDays(planWeekStart,-7),pe=addDays(planWeekStart,-1),we=addDays(planWeekStart,6);
- const prev=proj.plan.filter(x=>x.date>=ps&&x.date<=pe);
+ const ps=addDays(planWeekStart,-7);
+ // copia a meta da semana anterior (atividades com e sem dia); extras são pontuais e não são copiadas
+ const prev=planWeekItems(proj,ps).filter(x=>!x.extra);
  if(!prev.length)return alert('Não há nada planejado na semana anterior.');
- if(proj.plan.some(x=>x.date>=planWeekStart&&x.date<=we)&&!confirm('Esta semana já tem itens. Copiar mesmo assim?'))return;
- prev.forEach(x=>proj.plan.push({...x,id:crypto.randomUUID(),date:addDays(x.date,7),done:false}));
+ if(planWeekItems(proj,planWeekStart).length&&!confirm('Esta semana já tem itens. Copiar mesmo assim?'))return;
+ prev.forEach(x=>proj.plan.push({...x,id:crypto.randomUUID(),date:x.date?addDays(x.date,7):'',week:addDays(ps,7),done:false,logged:false}));
  save();
 }
 function planClearWeek(){
  const proj=cp();if(!proj)return;ensurePlanWeek();
- const we=addDays(planWeekStart,6);
- if(!proj.plan.some(x=>x.date>=planWeekStart&&x.date<=we))return alert('Esta semana não tem itens.');
+ const its=planWeekItems(proj,planWeekStart);
+ if(!its.length)return alert('Esta semana não tem itens.');
  if(!confirm('Remover todos os itens planejados desta semana?'))return;
- proj.plan=proj.plan.filter(x=>!(x.date>=planWeekStart&&x.date<=we));
+ const ids=new Set(its.map(x=>x.id));
+ proj.plan=proj.plan.filter(x=>!ids.has(x.id));
  save();
 }
 
