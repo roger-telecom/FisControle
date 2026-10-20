@@ -204,11 +204,37 @@ a.linkbtn:hover{border-color:var(--ink)}
 .authbox{max-width:380px;margin:30px auto 0}
 .authbox label{display:flex;flex-direction:column;gap:6px;font-size:12.5px;color:var(--ink-soft);margin-bottom:12px}
 @media(max-width:550px){.goal{grid-template-columns:auto 1fr}.goal-actions{grid-column:2;justify-content:flex-start}.topic-row{grid-template-columns:1fr 1fr}.topic-row>:first-child{grid-column:1/-1}}
+
+.sd-wrap{display:flex;gap:28px;align-items:center;flex-wrap:wrap}
+.sd-donut{flex:0 0 230px;max-width:100%}
+.sd-donut svg{width:230px;height:230px;display:block;margin:0 auto}
+.sd-center{font-family:Fraunces,Georgia,serif;fill:var(--ink)}
+.sd-legend{flex:1;min-width:300px}
+.sd-sum{display:flex;gap:18px;flex-wrap:wrap;font-size:12.5px;color:var(--ink-soft);margin-bottom:8px}
+.sd-sum i{display:inline-block;width:10px;height:10px;border-radius:50%;margin-right:6px}
+.sd-row{display:grid;grid-template-columns:24px 1fr 150px 42px 62px;gap:12px;align-items:center;padding:11px 0;border-top:1px solid var(--line);font-size:13.5px}
+.sd-row:first-of-type{border-top:0}
+.collapse-btn{margin-left:10px}
+.panel.collapsed>*:not(:first-child){display:none}
+.panel.collapsed .hide-on-collapse{display:none}
+.panel.collapsed>:first-child{margin-bottom:0!important}
+.panel.collapsed .chide{display:none}
+.panel.collapsed .cwrap{margin-bottom:0!important}
+.sd-color{width:24px;height:24px;padding:0;border:0;background:none;cursor:pointer}
+.sd-color::-webkit-color-swatch-wrapper{padding:0}
+.sd-color::-webkit-color-swatch{border:0;border-radius:6px}
+.sd-color::-moz-color-swatch{border:0;border-radius:6px}
+.sd-bar{display:flex;height:8px;border-radius:99px;overflow:hidden;gap:3px}
+.sd-bar span{display:block;height:100%;border-radius:99px}
+.sd-pct{color:var(--ink-soft);text-align:right;font-size:12.5px}
+.sd-hrs{font-weight:700;text-align:right}
+@media(max-width:600px){.sd-row{grid-template-columns:24px 1fr 42px 62px}.sd-bar{display:none}}
+
 </style>
 </head>
 <body>
 <div id="splash"><h1 id="splashTitle">Painel de Pós-Edital</h1><div class="splash-line"></div><p id="splashSub"></p></div>
-<header><div><h1 id="appTitle">Meus projetos</h1><p id="todayDate"></p></div><label class="themepick">Tema <select id="themeSel" onchange="setTheme(this.value)"><option value="clean">Clean (padrão)</option><option value="escuro">Escuro</option><option value="oceano">Oceano</option><option value="lavanda">Lavanda</option><option value="sepia">Sépia</option></select></label></header>
+<header><div><h1 id="appTitle">Meus projetos</h1><p id="todayDate"></p></div><div class="row"><label class="themepick">Tema <select id="themeSel" onchange="setTheme(this.value)"><option value="clean">Clean (padrão)</option><option value="escuro">Escuro</option><option value="oceano">Oceano</option><option value="lavanda">Lavanda</option><option value="sepia">Sépia</option></select></label><label class="themepick">Destaque <input type="color" id="accentPick" class="sd-color" onchange="setAccent(this.value)" title="Escolher cor de destaque"><button class="secondary small" onclick="resetAccent()">Padrão</button></label></div></header>
 
 <div id="hubView">
 <div class="hub-container">
@@ -222,15 +248,7 @@ a.linkbtn:hover{border-color:var(--ink)}
 </div>
 </div>
 <div class="projects-grid" id="projectGrid"></div>
-<div class="panel section">
-<h2>Backup dos dados</h2>
-<div class="label" style="margin-bottom:12px">Seus dados ficam salvos apenas neste navegador. Exporte um arquivo de backup de vez em quando e guarde no Google Drive, e-mail ou onde preferir. Para restaurar (ou levar para outro aparelho), use o importar.</div>
-<div class="row">
-<button class="secondary" onclick="exportBackup()">Exportar backup</button>
-<button class="secondary" onclick="document.getElementById('importFile').click()">Importar backup</button>
-<input type="file" id="importFile" accept="application/json,.json" style="display:none" onchange="importBackup(this)">
-</div>
-</div>
+
 </div>
 </div>
 
@@ -276,6 +294,9 @@ a.linkbtn:hover{border-color:var(--ink)}
 </div>
 
 <div class="section panel"><h2>Desempenho por disciplina</h2><div id="perfChart"></div></div>
+
+<div class="section panel" id="studyDonutPanelV"><div class="row" style="justify-content:space-between"><h2 style="margin:0">Horas por matéria no período</h2><div class="row"><select id="sdvType" onchange="renderStudyDonut()"><option value="day">Dia</option><option value="week">Semana</option><option value="month" selected>Mês</option><option value="year">Ano</option><option value="all">Total</option></select><input id="sdvDay" type="date" onchange="renderStudyDonut()"><input id="sdvWeek" type="date" title="Escolha qualquer dia: o gráfico mostra a semana (segunda a domingo) desse dia" onchange="renderStudyDonut()"><span class="label" id="sdvWeekLbl"></span><input id="sdvMonth" type="month" onchange="renderStudyDonut()"><input id="sdvYear" type="number" min="2000" max="2100" style="width:100px" onchange="renderStudyDonut()"></div></div><div id="sdvBox" style="margin-top:18px"></div></div>
+
 </section>
 
 <section id="revisoes" class="tab">
@@ -330,7 +351,7 @@ a.linkbtn:hover{border-color:var(--ink)}
 <div class="section panel"><h2>Metas</h2><div class="row"><label>Horas/dia <input id="goalDay" type="number" step=".5" min="0" style="width:90px"></label><label>Horas/semana <input id="goalWeek" type="number" step=".5" min="0" style="width:90px"></label></div><div class="section progress"><div class="bar" id="dayBar"></div></div><p class="label" id="dayText"></p></div>
 
 
-<div class="section panel"><h2>Últimas sessões</h2><div class="label" style="margin-bottom:8px">Horas lançadas por matéria (total)</div><div id="sessionTotals" class="row" style="margin-bottom:16px"></div><div style="overflow:auto"><table><thead><tr><th>Data</th><th>Matéria</th><th>Conteúdo</th><th>Tipo</th><th>Duração</th><th></th></tr></thead><tbody id="sessionTable"></tbody></table></div></div>
+<div class="section panel"><div class="row" style="justify-content:space-between;margin-bottom:14px"><h2 style="margin:0">Últimas sessões</h2><button class="secondary small collapse-btn" data-key="sessoes" onclick="toggleCollapse(this)">Minimizar</button></div><div class="label" style="margin-bottom:8px">Horas lançadas por matéria (total)</div><div id="sessionTotals" class="row" style="margin-bottom:16px"></div><div style="overflow:auto"><table><thead><tr><th>Data</th><th>Matéria</th><th>Conteúdo</th><th>Tipo</th><th>Duração</th><th></th></tr></thead><tbody id="sessionTable"></tbody></table></div></div>
 </section>
 
 <section id="progresso" class="tab">
@@ -348,8 +369,8 @@ a.linkbtn:hover{border-color:var(--ink)}
 <section id="desempenho" class="tab">
 <div class="panel">
 <div class="row" style="justify-content:space-between">
-<h2>Desempenho por disciplina</h2>
-<div class="row">
+<div class="row"><h2>Desempenho por disciplina</h2><button class="secondary small collapse-btn" data-key="desempenho" onclick="toggleCollapse(this)">Minimizar</button></div>
+<div class="row hide-on-collapse">
 <select id="perfPeriodType" onchange="onPerfPeriodTypeChange()"><option value="day">Dia</option><option value="month">Mês</option><option value="year">Ano</option></select>
 <input id="perfDay" type="date" onchange="renderPerfPeriod()">
 <input id="perfMonth" type="month" style="display:none" onchange="renderPerfPeriod()">
@@ -360,6 +381,9 @@ a.linkbtn:hover{border-color:var(--ink)}
 <div class="section"><h2 style="font-size:15px;margin-bottom:10px">Acerto por matéria no período</h2><div id="perfPeriodChart"></div></div>
 <div class="section" style="overflow:auto"><table><thead><tr><th>Matéria</th><th>Questões</th><th>Acertos</th><th>% Acerto</th><th>Horas estudadas</th></tr></thead><tbody id="perfPeriodTable"></tbody></table></div>
 </div>
+
+<div class="section panel" id="studyDonutPanel"><div class="row" style="justify-content:space-between"><h2 style="margin:0">Horas por matéria no período</h2><div class="row"><select id="sdType" onchange="renderStudyDonut()"><option value="day">Dia</option><option value="week">Semana</option><option value="month" selected>Mês</option><option value="year">Ano</option><option value="all">Total</option></select><input id="sdDay" type="date" onchange="renderStudyDonut()"><input id="sdWeek" type="date" title="Escolha qualquer dia: o gráfico mostra a semana (segunda a domingo) desse dia" onchange="renderStudyDonut()"><span class="label" id="sdWeekLbl"></span><input id="sdMonth" type="month" onchange="renderStudyDonut()"><input id="sdYear" type="number" min="2000" max="2100" style="width:100px" onchange="renderStudyDonut()"></div></div><div id="sdBox" style="margin-top:18px"></div></div>
+
 </section>
 
 <section id="discursivas" class="tab">
@@ -692,7 +716,7 @@ function render(){
  document.getElementById('overallBar').style.width=pct+'%';document.getElementById('overallText').textContent=`${pct}% concluído · ${done} de ${proj.contents.length} conteúdos`;
  renderSubjectProgress(proj);renderPriorities(proj);renderContents(proj);renderSessions(proj);
  renderVert(proj);renderReviews(proj);renderDiscursivas(proj);renderPlan();renderPlanPending(proj);
- renderPainelSummary(proj);renderPerfChart(proj);renderPerfPeriod();
+ renderPainelSummary(proj);renderPerfChart(proj);renderPerfPeriod();renderStudyDonut();
  document.getElementById('goalDay').value=proj.goalDay;document.getElementById('goalWeek').value=proj.goalWeek;
  document.getElementById('dayBar').style.width=Math.min(100,ts/(proj.goalDay*3600||1)*100)+'%';document.getElementById('dayText').textContent=`Hoje: ${hm(ts)} de ${proj.goalDay}h`;
  if(document.getElementById('dDate')&&!document.getElementById('dDate').value)document.getElementById('dDate').value=today();
@@ -1360,6 +1384,83 @@ function planClearWeek(){
  const ids=new Set(its.map(x=>x.id));
  proj.plan=proj.plan.filter(x=>!ids.has(x.id));
  save();
+}
+
+
+/* ===== Minimizar painéis ===== */
+function applyCollapse(btn){let c=false;try{c=localStorage.getItem('collapse_'+btn.dataset.key)==='1'}catch(e){}const p=btn.closest('.panel');if(!p)return;p.classList.toggle('collapsed',c);btn.textContent=c?'Expandir':'Minimizar'}
+function toggleCollapse(btn){const p=btn.closest('.panel'),c=!p.classList.contains('collapsed');try{localStorage.setItem('collapse_'+btn.dataset.key,c?'1':'0')}catch(e){}p.classList.toggle('collapsed',c);btn.textContent=c?'Expandir':'Minimizar'}
+document.querySelectorAll('.collapse-btn').forEach(applyCollapse);
+function initAutoCollapse(){
+ document.querySelectorAll('#projectView .panel').forEach(p=>{
+  if(p.querySelector('.collapse-btn')||p.closest('#planWeek,#planList,#planZone,#planGrid'))return;
+  const first=p.firstElementChild;if(!first)return;
+  const h=first.tagName==='H2'?first:first.querySelector('h2');
+  if(!h||h.closest('.panel')!==p)return;
+  const tab=p.closest('.tab'),key=(tab?tab.id:'x')+'_'+h.textContent.trim().toLowerCase().replace(/[^a-z0-9]+/g,'_').slice(0,40);
+  const w=document.createElement('div');w.className='row cwrap';w.style.cssText='gap:10px;margin-bottom:16px';
+  h.style.margin='0';h.replaceWith(w);w.appendChild(h);
+  const b=document.createElement('button');b.className='secondary small collapse-btn';b.dataset.key=key;b.onclick=function(){toggleCollapse(this)};b.textContent='Minimizar';w.appendChild(b);
+  p.classList.add('autocollapse');
+  let n=w;while(n&&n!==p){[...n.parentElement.children].forEach(c=>{if(c!==n)c.classList.add('chide')});n=n.parentElement}
+  applyCollapse(b);
+ });
+}
+initAutoCollapse();
+/* ===== Cor de destaque personalizada ===== */
+function applyAccent(c){const r=document.documentElement.style;if(!c){r.removeProperty('--accent');r.removeProperty('--accent-soft');return}r.setProperty('--accent',c);r.setProperty('--accent-soft','color-mix(in srgb,'+c+' 15%,var(--surface))')}
+function syncAccentPick(){const p=document.getElementById('accentPick');if(!p)return;let c=null;try{c=localStorage.getItem('app_accent')}catch(e){}if(!c){const v=getComputedStyle(document.documentElement).getPropertyValue('--accent').trim();c=/^#[0-9a-f]{6}$/i.test(v)?v:'#20553F'}p.value=c}
+function setAccent(c){try{localStorage.setItem('app_accent',c)}catch(e){}applyAccent(c)}
+function resetAccent(){try{localStorage.removeItem('app_accent')}catch(e){}applyAccent(null);syncAccentPick()}
+(function(){let c=null;try{c=localStorage.getItem('app_accent')}catch(e){}applyAccent(c);syncAccentPick()})();
+const _stOrig=setTheme;setTheme=function(v){_stOrig(v);syncAccentPick()};
+/* ===== Gráfico: horas por matéria (dia / mês / ano / total) ===== */
+const SD_PAL=['#A0336E','#3B33A5','#A0932F','#A23535','#348CA0','#4EA032','#A05A32','#34A055','#7A4FA0','#C77D2E','#2E7DC7','#6B7B8C'];
+function sdHM(s){s=Math.round(s);return Math.floor(s/3600)+'h'+String(Math.floor(s%3600/60)).padStart(2,'0')}
+function sdSetColor(subject,color){
+ const proj=cp();if(!proj)return;
+ ensureMeta(proj,subject).color=color;
+ save();
+}
+function renderStudyDonut(){sdRender('sd');sdRender('sdv')}
+function sdRender(px){
+ const proj=cp(),box=document.getElementById(px+'Box');if(!proj||!box)return;
+ const g=id=>document.getElementById(id);
+ const type=g(px+'Type').value;
+ if(!g(px+'Day').value)g(px+'Day').value=today();
+ if(!g(px+'Month').value)g(px+'Month').value=today().slice(0,7);
+ if(!g(px+'Year').value)g(px+'Year').value=new Date().getFullYear();
+ if(!g(px+'Week').value)g(px+'Week').value=today();
+ const wk=mondayOf(g(px+'Week').value||today()),wkEnd=addDays(wk,6);
+ g(px+'Week').style.display=type==='week'?'':'none';
+ g(px+'WeekLbl').style.display=type==='week'?'':'none';
+ g(px+'WeekLbl').textContent='Semana de '+fmtDM(wk)+' a '+fmtDM(wkEnd);
+ g(px+'Day').style.display=type==='day'?'':'none';
+ g(px+'Month').style.display=type==='month'?'':'none';
+ g(px+'Year').style.display=type==='year'?'':'none';
+ const val=type==='day'?g(px+'Day').value:type==='month'?g(px+'Month').value:g(px+'Year').value;
+ const map={};
+ proj.sessions.forEach(s=>{
+  if(type==='week'){if(s.date<wk||s.date>wkEnd)return}else if(type!=='all'&&!inPeriod(s.date,type,val))return;
+  const m=map[s.subject]||(map[s.subject]={q:0,o:0});
+  if(s.type==='Questões')m.q+=s.seconds;else m.o+=s.seconds;
+ });
+ const rows=Object.keys(map).map(k=>({name:k,q:map[k].q,o:map[k].o,t:map[k].q+map[k].o,
+  color:(proj.subjectMeta[k]&&proj.subjectMeta[k].color)||SD_PAL[(proj.subjects.indexOf(k)>=0?proj.subjects.indexOf(k):proj.subjects.length)%SD_PAL.length]}))
+  .filter(r=>r.t>0).sort((a,b)=>b.t-a.t);
+ const total=rows.reduce((a,r)=>a+r.t,0);
+ if(!total){box.innerHTML='<div class="empty">Nenhuma hora registrada neste período.</div>';return}
+ const qT=rows.reduce((a,r)=>a+r.q,0),oT=total-qT;
+ const R=80,CIRC=2*Math.PI*R;let acc=0,circles='';
+ rows.forEach(r=>[[r.q,1],[r.o,.35]].forEach(p=>{
+  if(!p[0])return;const len=p[0]/total*CIRC;
+  circles+=`<circle cx="100" cy="100" r="${R}" fill="none" stroke="${r.color}" stroke-opacity="${p[1]}" stroke-width="30" stroke-dasharray="${len} ${CIRC-len}" stroke-dashoffset="${-acc}" transform="rotate(-90 100 100)"/>`;
+  acc+=len;
+ }));
+ const donut=`<svg viewBox="0 0 200 200" role="img" aria-label="Horas por matéria">${circles}<text class="label" x="100" y="86" text-anchor="middle" font-size="9" fill="var(--ink-soft)">Total no período</text><text class="sd-center" x="100" y="110" text-anchor="middle" font-size="26" font-weight="600">${sdHM(total)}</text><text x="100" y="127" text-anchor="middle" font-size="9" font-weight="600" fill="var(--ink-soft)">${rows.length} matéria${rows.length>1?'s':''}</text></svg>`;
+ const legend=rows.map(r=>{const qp=r.q/r.t*100;
+  return `<div class="sd-row"><input type="color" class="sd-color" value="${r.color}" data-name="${esc(r.name)}" onchange="sdSetColor(this.dataset.name,this.value)" title="Escolher cor"><span>${esc(r.name)}</span><div class="sd-bar" title="Questões: ${sdHM(r.q)} · Demais: ${sdHM(r.o)}">${r.q?`<span style="width:${qp}%;background:${r.color}"></span>`:''}${r.o?`<span style="width:${100-qp}%;background:${r.color};opacity:.35"></span>`:''}</div><span class="sd-pct">${Math.round(r.t/total*100)}%</span><span class="sd-hrs">${sdHM(r.t)}</span></div>`}).join('');
+ box.innerHTML=`<div class="sd-wrap"><div class="sd-donut">${donut}</div><div class="sd-legend"><div class="sd-sum"><span><i style="background:var(--ink-soft)"></i>Questões (cor escura): <b>${sdHM(qT)}</b></span><span><i style="background:var(--ink-soft);opacity:.35"></i>Demais tipos (cor clara): <b>${sdHM(oT)}</b></span></div>${legend}</div></div>`;
 }
 
 /* ===== Desempenho por dia / mês / ano ===== */
