@@ -3,7 +3,7 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width,initial-scale=1">
-<title>FisControle - Concursos</title>
+<title>Meus Projetos de Estudo</title>
 <script>try{var __t=localStorage.getItem("app_theme");if(__t&&__t!=="clean")document.documentElement.setAttribute("data-theme",__t)}catch(e){}</script>
 <style>
 @import url('https://fonts.googleapis.com/css2?family=Fraunces:opsz,wght@9..144,500;9..144,600;9..144,700&family=Inter:wght@400;500;600;700&display=swap');
@@ -2012,6 +2012,90 @@ async function cloudDelExtra(id){
 }
 // A autenticação é a primeira tela da aplicação.
 cloudOpen();
+</script>
+<!-- ===== FisControle: logo + favicon dinâmicos (substitui o bloco anterior; cole logo antes de </body>) ===== -->
+<svg width="0" height="0" style="position:absolute" aria-hidden="true" focusable="false">
+ <symbol id="fc-tile" viewBox="0 0 200 200">
+  <rect width="200" height="200" rx="44" style="fill:var(--fc-bg,var(--accent))"/>
+  <g transform="translate(100 100) scale(.76) translate(-100 -100)" style="fill:none;stroke:var(--fc-g,var(--fc-on-accent,#fff));stroke-linecap:round;stroke-linejoin:round">
+   <path d="M100 8 L172 24 V92 C172 140 140 170 100 192 C60 170 28 140 28 92 V24 Z" style="stroke-width:9"/>
+   <path d="M135.4 67.2 A50 50 0 1 0 135.4 128.8" style="stroke-width:13;stroke-linecap:butt"/>
+   <path d="M74 64 H122 L114 80 H92 V94 H114 L108 108 H92 V120 L83 140 L74 120 Z" style="fill:var(--fc-g,var(--fc-on-accent,#fff));stroke:none"/>
+   <path d="M123 101 L133 111 L153 85" style="stroke-width:10"/>
+  </g>
+ </symbol>
+</svg>
+<style>
+.fc-mark{display:block;flex-shrink:0}
+.fc-word{font-family:Fraunces,Georgia,serif;font-weight:700;letter-spacing:-.015em;color:var(--ink);line-height:1.1}
+.fc-word b{font-weight:700;color:var(--accent)}
+.fc-headbrand{display:flex;align-items:center;gap:16px}
+.fc-headbrand .fc-mark{width:58px;height:58px}
+header .fc-word{font-size:15px;margin-bottom:3px}
+.fc-authbrand{display:flex;flex-direction:column;align-items:center;gap:8px;text-align:center;margin:2px 0 22px;padding-bottom:20px;border-bottom:1px solid var(--line)}
+.fc-authbrand .fc-mark{width:88px;height:88px}
+.fc-authbrand .fc-word{font-size:30px}
+.fc-authbrand .label{max-width:260px}
+#splash{gap:12px}
+#splash .fc-splashbrand{display:flex;flex-direction:column;align-items:center;gap:10px;margin-bottom:6px;opacity:0;animation:splashIn .8s ease forwards}
+#splash .fc-mark{--fc-bg:var(--accent-soft);--fc-g:var(--accent);width:108px;height:108px}
+#splash .fc-word{font-size:36px;color:var(--on-ink)}
+#splash .fc-word b{color:var(--accent-soft)}
+@media(max-width:550px){.fc-headbrand .fc-mark{width:48px;height:48px}}
+</style>
+<script>
+(function(){
+ var mark=function(px){return '<svg class="fc-mark" width="'+px+'" height="'+px+'" viewBox="0 0 200 200" role="img" aria-label="FisControle"><use href="#fc-tile"/></svg>'};
+ var word='<div class="fc-word">Fis<b>Controle</b></div>';
+
+ /* Cabeçalho */
+ var hd=document.querySelector('body>header');
+ if(hd&&hd.firstElementChild&&!hd.querySelector('.fc-headbrand')){
+  var left=hd.firstElementChild,wrap=document.createElement('div');
+  wrap.className='fc-headbrand';hd.insertBefore(wrap,left);
+  wrap.innerHTML=mark(58);wrap.appendChild(left);
+  left.insertAdjacentHTML('afterbegin',word);
+ }
+ /* Abertura */
+ var sp=document.getElementById('splash');
+ if(sp){var s=document.createElement('div');s.className='fc-splashbrand';s.innerHTML=mark(108)+word;sp.insertBefore(s,sp.firstChild)}
+ /* Login / cadastro / recuperar senha (a tela é redesenhada a cada troca) */
+ var body=document.getElementById('cloudBody');
+ function brandAuth(){
+  var a=body&&body.querySelector('.authbox');
+  if(a&&!a.querySelector('.fc-authbrand')){
+   var d=document.createElement('div');d.className='fc-authbrand';
+   d.innerHTML=mark(88)+word+'<div class="label">Plano de guerra para a aprovação fiscal</div>';
+   a.insertBefore(d,a.firstChild);
+  }
+ }
+ if(body){new MutationObserver(brandAuth).observe(body,{childList:true});brandAuth()}
+
+ /* Cor principal do tema -> rgb e cor do desenho com contraste (branco ou escuro) */
+ var probe=document.createElement('span');probe.style.display='none';document.body.appendChild(probe);
+ function rgbOf(v){probe.style.color='';probe.style.color=v;var m=getComputedStyle(probe).color.match(/[\d.]+/g)||[15,23,34];return m.slice(0,3).map(Number)}
+ function lum(c){var a=c.map(function(x){x/=255;return x<=.03928?x/12.92:Math.pow((x+.055)/1.055,2.4)});return .2126*a[0]+.7152*a[1]+.0722*a[2]}
+
+ /* Favicon + cor do desenho: refeitos sempre que o tema ou o Destaque mudam */
+ var link=document.querySelector('link[rel~="icon"]');
+ if(!link){link=document.createElement('link');document.head.appendChild(link)}
+ link.rel='icon';link.type='image/svg+xml';
+ var last='',busy=false;
+ function sync(){
+  busy=false;
+  var root=document.documentElement,acc=getComputedStyle(root).getPropertyValue('--accent').trim();
+  if(!acc)return;
+  var key=acc+'|'+(root.getAttribute('data-theme')||'');
+  if(key===last)return;last=key;
+  var c=rgbOf(acc),on=lum(c)>.2?'#0F1722':'#FFFFFF',bg='rgb('+c.join(',')+')';
+  if(root.style.getPropertyValue('--fc-on-accent')!==on)root.style.setProperty('--fc-on-accent',on);
+  var svg='<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 200 200"><rect width="200" height="200" rx="44" fill="'+bg+'"/><g transform="translate(100 100) scale(.8) translate(-100 -100)" fill="none" stroke="'+on+'" stroke-linejoin="round" stroke-linecap="round"><path d="M100 8 L172 24 V92 C172 140 140 170 100 192 C60 170 28 140 28 92 V24 Z" stroke-width="10"/><path d="M135.4 67.2 A50 50 0 1 0 135.4 128.8" stroke-width="15" stroke-linecap="butt"/><path d="M74 64 H122 L114 80 H92 V94 H114 L108 108 H92 V120 L83 140 L74 120 Z" fill="'+on+'" stroke="none"/><path d="M123 101 L133 111 L153 85" stroke-width="11"/></g></svg>';
+  link.href='data:image/svg+xml,'+encodeURIComponent(svg);
+ }
+ function queue(){if(!busy){busy=true;requestAnimationFrame(sync)}}
+ new MutationObserver(queue).observe(document.documentElement,{attributes:true,attributeFilter:['data-theme','style']});
+ sync();
+})();
 </script>
 </body>
 </html>
